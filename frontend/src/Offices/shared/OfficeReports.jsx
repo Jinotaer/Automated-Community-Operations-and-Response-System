@@ -1,5 +1,5 @@
-// src/Admin/Reports.jsx
-import { useEffect, useRef, useState } from "react";
+// src/Offices/shared/OfficeReports.jsx
+import { useState } from "react";
 import {
   Search,
   ChevronDown,
@@ -8,31 +8,17 @@ import {
   XCircle,
   MapPin,
   Download,
-  Plus,
-  X,
 } from "lucide-react";
-import AdminLayout from "../Layouts/AdminLayouts";
-import { allReports, allOffices, officeFilterOptions } from "./adminData";
+import OfficeLayout from "../OfficeLayout";
 
 const statuses = ["All", "Pending", "Under Review", "Assigned", "In Progress", "Resolved"];
-const categories = [
-  "All Categories",
-  ...new Set(allReports.map((report) => report.category)),
-];
 
-const barangays = ["Casisang", "Kalasungay", "Sumpong", "Aglayan", "Bangcud"];
-const departments = allOffices.map((office) => office.name);
-const priorities = ["Critical", "High", "Medium", "Low"];
-const reportCategories = categories.slice(1);
-
-export default function Reports() {
-  const [reports, setReports] = useState(allReports);
-  const [selectedReport, setSelectedReport] = useState(allReports[0]);
+export default function OfficeReports({ office }) {
+  const [reports, setReports] = useState(office.recentReports);
+  const [selectedReport, setSelectedReport] = useState(reports[0]);
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [categoryFilter, setCategoryFilter] = useState("All Categories");
-  const [officeFilter, setOfficeFilter] = useState("All Offices");
-  const [addOpen, setAddOpen] = useState(false);
 
   const normalizedQuery = query.trim().toLowerCase();
 
@@ -42,24 +28,22 @@ export default function Reports() {
       [
         report.id,
         report.title,
+        report.issue,
         report.description,
         report.location,
         report.barangay,
         report.category,
-        report.reporter,
-        report.department,
-        report.office,
-      ].some((field) => field.toLowerCase().includes(normalizedQuery));
+      ]
+        .filter(Boolean)
+        .some((field) => field.toLowerCase().includes(normalizedQuery));
 
     const matchesStatus =
       statusFilter === "All" || report.status === statusFilter;
     const matchesCategory =
       categoryFilter === "All Categories" ||
       report.category === categoryFilter;
-    const matchesOffice =
-      officeFilter === "All Offices" || report.office === officeFilter;
 
-    return matchesQuery && matchesStatus && matchesCategory && matchesOffice;
+    return matchesQuery && matchesStatus && matchesCategory;
   });
 
   const selectedIsVisible =
@@ -69,10 +53,32 @@ export default function Reports() {
     ? selectedReport
     : filteredReports[0] || null;
 
-  const handleAddReport = (report) => {
-    setReports((prev) => [report, ...prev]);
-    setSelectedReport(report);
-    setAddOpen(false);
+  const handleResolve = () => {
+    if (!visibleReport) return;
+    setReports((prev) =>
+      prev.map((report) =>
+        report.id === visibleReport.id
+          ? { ...report, status: "Resolved" }
+          : report
+      )
+    );
+    setSelectedReport((current) =>
+      current ? { ...current, status: "Resolved" } : current
+    );
+  };
+
+  const handleReject = () => {
+    if (!visibleReport) return;
+    setReports((prev) =>
+      prev.map((report) =>
+        report.id === visibleReport.id
+          ? { ...report, status: "Rejected" }
+          : report
+      )
+    );
+    setSelectedReport((current) =>
+      current ? { ...current, status: "Rejected" } : current
+    );
   };
 
   const clearFilters = () => {
@@ -82,7 +88,7 @@ export default function Reports() {
   };
 
   return (
-    <AdminLayout>
+    <OfficeLayout office={office} header={`${office.shortName} Reports`}>
       <div className="space-y-4 sm:space-y-6">
         {/* Header */}
         <header className="flex animate-fade-up flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -92,7 +98,7 @@ export default function Reports() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-600 opacity-60" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-red-600" />
               </span>
-              Malaybalay · Citizen Reports
+              Malaybalay · {office.name}
             </p>
             <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl">
               Reports Management
@@ -104,20 +110,11 @@ export default function Reports() {
               <span className="font-bold text-gray-900">{reports.length}</span>{" "}
               ACTIVE REPORTS · SYNCED 09:41 AM
             </p>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-bold text-gray-700 transition hover:bg-gray-50 active:translate-y-px sm:w-auto">
-                <Download size={17} />
-                Export
-              </button>
 
-              <button
-                onClick={() => setAddOpen(true)}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-red-700 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-red-800 active:translate-y-px sm:w-auto"
-              >
-                <Plus size={17} />
-                Add Report
-              </button>
-            </div>
+            <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-bold text-gray-700 transition hover:bg-gray-50 active:translate-y-px sm:w-auto">
+              <Download size={17} />
+              Export
+            </button>
           </div>
         </header>
 
@@ -126,7 +123,7 @@ export default function Reports() {
           className="animate-fade-up rounded-2xl border border-gray-200/70 bg-white p-4 shadow-sm sm:p-5"
           style={{ animationDelay: "40ms" }}
         >
-          <div className="grid gap-4 lg:grid-cols-[1fr_auto_auto_auto_auto]">
+          <div className="grid gap-4 lg:grid-cols-[1fr_auto_auto]">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <input
@@ -139,12 +136,6 @@ export default function Reports() {
             </div>
 
             <SelectFilter
-              label="Office"
-              value={officeFilter}
-              onChange={setOfficeFilter}
-              options={officeFilterOptions}
-            />
-            <SelectFilter
               label="Status"
               value={statusFilter}
               onChange={setStatusFilter}
@@ -154,7 +145,7 @@ export default function Reports() {
               label="Category"
               value={categoryFilter}
               onChange={setCategoryFilter}
-              options={categories}
+              options={["All Categories", ...office.categories]}
             />
           </div>
         </section>
@@ -169,10 +160,10 @@ export default function Reports() {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h2 className="text-lg font-extrabold text-gray-900">
-                  All Citizen Reports
+                  Assigned Citizen Reports
                 </h2>
                 <p className="text-sm text-gray-500">
-                  Showing reports from all LGU offices.
+                  Reports routed to {office.name}.
                 </p>
               </div>
 
@@ -182,13 +173,12 @@ export default function Reports() {
             </div>
 
             <div className="mt-5 overflow-x-auto">
-              <table className="w-full min-w-208 text-left text-sm">
+              <table className="w-full min-w-176 text-left text-sm">
                 <thead>
                   <tr className="border-b border-gray-200 text-[11px] uppercase tracking-wider text-gray-500">
                     <th className="px-3 py-3 text-left font-semibold">Report</th>
                     <th className="px-3 py-3 text-left font-semibold">Location</th>
                     <th className="px-3 py-3 text-left font-semibold">Category</th>
-                    <th className="px-3 py-3 text-left font-semibold">Office</th>
                     <th className="px-3 py-3 text-left font-semibold">Priority</th>
                     <th className="px-3 py-3 text-left font-semibold">Status</th>
                     <th className="px-3 py-3 text-left font-semibold">Action</th>
@@ -207,7 +197,7 @@ export default function Reports() {
 
                   {filteredReports.length === 0 && (
                     <tr>
-                      <td colSpan={7} className="px-3 py-14 text-center">
+                      <td colSpan={6} className="px-3 py-14 text-center">
                         <p className="font-mono text-xs font-medium uppercase tracking-[0.18em] text-gray-500">
                           No reports match your filters
                         </p>
@@ -244,7 +234,7 @@ export default function Reports() {
                 <div className="relative">
                   <img
                     src={visibleReport.image}
-                    alt={visibleReport.title}
+                    alt={visibleReport.issue || visibleReport.title}
                     className="h-44 w-full rounded-2xl object-cover sm:h-48"
                   />
                   <span className="absolute left-3 top-3 rounded-lg bg-white/90 px-2.5 py-1 font-mono text-[11px] font-bold text-gray-700 shadow-sm backdrop-blur">
@@ -258,7 +248,7 @@ export default function Reports() {
                       Issue
                     </p>
                     <h3 className="mt-1.5 text-base font-extrabold text-gray-900">
-                      {visibleReport.title}
+                      {visibleReport.issue || visibleReport.title}
                     </h3>
                     <p className="mt-2 text-sm leading-6 text-gray-500">
                       {visibleReport.description}
@@ -292,32 +282,28 @@ export default function Reports() {
                       <StatusBadge status={visibleReport.status} />
                     </InfoBox>
 
-                    <InfoBox label="Reporter">
-                      <p className="text-sm font-bold text-gray-800">
-                        {visibleReport.reporter}
+                    <InfoBox label="Reported On">
+                      <p className="font-mono text-xs font-bold text-gray-800">
+                        {visibleReport.reported}
                       </p>
                     </InfoBox>
                   </div>
 
-                  <InfoBox label="Assigned Department">
-                    <p className="text-sm font-bold text-gray-800">
-                      {visibleReport.department}
-                    </p>
-                  </InfoBox>
-
-                  <InfoBox label="Reported On">
-                    <p className="font-mono text-sm font-bold text-gray-800">
-                      {visibleReport.date} · {visibleReport.time}
-                    </p>
-                  </InfoBox>
-
                   <div className="grid grid-cols-1 gap-3 pt-2 sm:grid-cols-2">
-                    <button className="flex items-center justify-center gap-2 rounded-xl bg-red-700 px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-red-800 active:translate-y-px">
+                    <button
+                      onClick={handleResolve}
+                      disabled={visibleReport.status === "Resolved"}
+                      className="flex items-center justify-center gap-2 rounded-xl bg-red-700 px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-red-800 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50"
+                    >
                       <CheckCircle size={17} />
                       Resolve
                     </button>
 
-                    <button className="flex items-center justify-center gap-2 rounded-xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700 transition hover:bg-red-100 active:translate-y-px">
+                    <button
+                      onClick={handleReject}
+                      disabled={visibleReport.status === "Rejected"}
+                      className="flex items-center justify-center gap-2 rounded-xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700 transition hover:bg-red-100 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50"
+                    >
                       <XCircle size={17} />
                       Reject
                     </button>
@@ -334,14 +320,7 @@ export default function Reports() {
           </aside>
         </section>
       </div>
-
-      {addOpen && (
-        <AddReportModal
-          onClose={() => setAddOpen(false)}
-          onAdd={handleAddReport}
-        />
-      )}
-    </AdminLayout>
+    </OfficeLayout>
   );
 }
 
@@ -368,289 +347,6 @@ function SelectFilter({ label, value, onChange, options }) {
   );
 }
 
-function AddReportModal({ onClose, onAdd }) {
-  const nextId = useRef(1);
-  const [form, setForm] = useState({
-    title: "",
-    description: "",
-    location: "",
-    barangay: "",
-    category: "",
-    priority: "Medium",
-    department: "",
-    reporter: "",
-    image: "",
-  });
-  const [errors, setErrors] = useState({});
-
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      if (event.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    document.body.style.overflow = "hidden";
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "";
-    };
-  }, [onClose]);
-
-  const requiredFields = [
-    "title",
-    "description",
-    "location",
-    "barangay",
-    "category",
-    "department",
-    "reporter",
-  ];
-
-  const updateField = (field) => (event) => {
-    setForm((prev) => ({ ...prev, [field]: event.target.value }));
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-
-    const nextErrors = {};
-    for (const field of requiredFields) {
-      if (!form[field].trim()) nextErrors[field] = "This field is required.";
-    }
-    setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0) return;
-
-    const now = new Date();
-    const id = `#MBY-2025-${1245 + nextId.current++}`;
-
-    onAdd({
-      id,
-      title: form.title.trim(),
-      description: form.description.trim(),
-      location: form.location.trim(),
-      barangay: form.barangay,
-      category: form.category,
-      priority: form.priority,
-      status: "Pending",
-      department: form.department,
-      reporter: form.reporter.trim(),
-      date: now.toLocaleDateString("en-US", {
-        month: "long",
-        day: "numeric",
-        year: "numeric",
-      }),
-      time: now.toLocaleTimeString("en-US", {
-        hour: "numeric",
-        minute: "2-digit",
-      }),
-      image:
-        form.image.trim() ||
-        `https://picsum.photos/seed/acors-${id.replace(/[^0-9]/g, "")}/300/200`,
-    });
-  };
-
-  return (
-    <div
-      onClick={onClose}
-      className="fixed inset-0 z-50 flex animate-fade-in items-end justify-center bg-zinc-950/60 backdrop-blur-sm sm:items-center sm:p-6"
-    >
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="Add report"
-        onClick={(event) => event.stopPropagation()}
-        className="max-h-[92dvh] w-full max-w-xl overflow-y-auto rounded-t-[2rem] bg-white shadow-2xl animate-modal-in sm:rounded-[2rem]"
-      >
-        <div className="flex items-center justify-between border-b border-gray-100 px-6 py-5">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500">
-              New Citizen Report
-            </p>
-            <h2 className="mt-1 text-xl font-extrabold text-gray-900">
-              Add Report
-            </h2>
-          </div>
-
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close add report"
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 text-gray-500 transition hover:bg-gray-100 hover:text-gray-900"
-          >
-            <X size={18} />
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} noValidate className="p-6">
-          <div className="space-y-4">
-            <Field label="Issue Title" error={errors.title}>
-              <input
-                type="text"
-                value={form.title}
-                onChange={updateField("title")}
-                placeholder="e.g. Large pothole along Sayre Highway"
-                className={inputClass(!!errors.title)}
-              />
-            </Field>
-
-            <Field label="Description" error={errors.description}>
-              <textarea
-                rows={3}
-                value={form.description}
-                onChange={updateField("description")}
-                placeholder="Describe the issue, severity, and any helpful details..."
-                className={`${inputClass(!!errors.description)} h-auto resize-none py-3`}
-              />
-            </Field>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Location" error={errors.location}>
-                <input
-                  type="text"
-                  value={form.location}
-                  onChange={updateField("location")}
-                  placeholder="Street, purok, landmark..."
-                  className={inputClass(!!errors.location)}
-                />
-              </Field>
-
-              <Field label="Barangay" error={errors.barangay}>
-                <SelectField
-                  value={form.barangay}
-                  onChange={updateField("barangay")}
-                  options={barangays}
-                  placeholder="Select barangay"
-                  invalid={!!errors.barangay}
-                />
-              </Field>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Category" error={errors.category}>
-                <SelectField
-                  value={form.category}
-                  onChange={updateField("category")}
-                  options={reportCategories}
-                  placeholder="Select category"
-                  invalid={!!errors.category}
-                />
-              </Field>
-
-              <Field label="Priority">
-                <SelectField
-                  value={form.priority}
-                  onChange={updateField("priority")}
-                  options={priorities}
-                  invalid={false}
-                />
-              </Field>
-            </div>
-
-            <Field label="Assigned Department" error={errors.department}>
-              <SelectField
-                value={form.department}
-                onChange={updateField("department")}
-                options={departments}
-                placeholder="Select department"
-                invalid={!!errors.department}
-              />
-            </Field>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Reporter" error={errors.reporter}>
-                <input
-                  type="text"
-                  value={form.reporter}
-                  onChange={updateField("reporter")}
-                  placeholder="Full name"
-                  className={inputClass(!!errors.reporter)}
-                />
-              </Field>
-
-              <Field label="Image URL (optional)">
-                <input
-                  type="text"
-                  value={form.image}
-                  onChange={updateField("image")}
-                  placeholder="Paste image link or leave blank"
-                  className={inputClass(false)}
-                />
-              </Field>
-            </div>
-          </div>
-
-          <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-bold text-gray-700 transition hover:bg-gray-50 active:translate-y-px"
-            >
-              Cancel
-            </button>
-
-            <button
-              type="submit"
-              className="rounded-xl bg-red-700 px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-red-800 active:translate-y-px"
-            >
-              Submit Report
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
-
-function inputClass(invalid) {
-  return `h-12 w-full rounded-xl border bg-white px-4 text-sm text-gray-900 outline-none transition placeholder:text-gray-500 focus:border-red-700 focus:ring-1 focus:ring-red-700 ${
-    invalid ? "border-red-600" : "border-gray-200"
-  }`;
-}
-
-function SelectField({ value, onChange, options, placeholder, invalid }) {
-  return (
-    <div className="relative">
-      <select
-        value={value}
-        onChange={onChange}
-        className={`h-12 w-full appearance-none rounded-xl border bg-white pl-4 pr-10 text-sm font-medium text-gray-900 outline-none transition focus:border-red-700 focus:ring-1 focus:ring-red-700 ${
-          invalid ? "border-red-600" : "border-gray-200"
-        }`}
-      >
-        {placeholder && (
-          <option value="" disabled>
-            {placeholder}
-          </option>
-        )}
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </select>
-      <ChevronDown
-        size={16}
-        className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400"
-      />
-    </div>
-  );
-}
-
-function Field({ label, error, children }) {
-  return (
-    <div className="space-y-1.5">
-      <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500">
-        {label}
-      </label>
-      {children}
-      {error && (
-        <p role="alert" className="text-xs font-medium text-red-600">
-          {error}
-        </p>
-      )}
-    </div>
-  );
-}
-
 function ReportRow({ report, selected, onClick }) {
   return (
     <tr
@@ -663,13 +359,15 @@ function ReportRow({ report, selected, onClick }) {
         <div className="flex items-center gap-3">
           <img
             src={report.image}
-            alt={report.title}
+            alt={report.issue || report.title}
             className="h-12 w-12 rounded-lg object-cover"
           />
           <div className="min-w-0 max-w-72">
-            <p className="truncate text-sm font-bold text-gray-900">{report.title}</p>
+            <p className="truncate text-sm font-bold text-gray-900">
+              {report.issue || report.title}
+            </p>
             <p className="mt-0.5 font-mono text-[11px] font-medium text-gray-500">
-              {report.date} · {report.time}
+              {report.reported}
             </p>
           </div>
         </div>
@@ -682,12 +380,6 @@ function ReportRow({ report, selected, onClick }) {
 
       <td className="px-3 py-4 text-xs font-medium text-gray-600">
         {report.category}
-      </td>
-
-      <td className="px-3 py-4">
-        <span className="rounded-full bg-red-50 px-2.5 py-1 text-[11px] font-bold text-red-700">
-          {report.office}
-        </span>
       </td>
 
       <td className="px-3 py-4">

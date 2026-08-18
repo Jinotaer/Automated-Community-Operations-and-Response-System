@@ -1,73 +1,43 @@
-// src/layouts/AdminLayout.jsx
+// src/Offices/OfficeLayout.jsx
 import { useState } from "react";
 import { NavLink, Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   ClipboardList,
   Map,
-  Building2,
-  Settings,
-  MapPin,
   LogOut,
   Menu,
   ChevronDown,
   Calendar,
   Bell,
-  User,
   Info,
-  Users,
+  ArrowLeft,
 } from "lucide-react";
 import ApplicationLogo from "../Components/ApplicationLogo";
 import ValorLogo from "@/assets/acors.png";
 
-const navigation = [
+const notifications = [
   {
-    name: "Overview",
-    href: "/admin/overview",
-    icon: LayoutDashboard,
+    id: 1,
+    message: "New report assigned to your office",
+    time: "5 min ago",
+    unread: true,
   },
   {
-    name: "Resident Complaints",
-    href: "/admin/reports",
-    icon: ClipboardList,
+    id: 2,
+    message: "Report updated to In Progress",
+    time: "1 hour ago",
+    unread: true,
   },
   {
-    name: "Heat Map",
-    href: "/admin/map",
-    icon: Map,
+    id: 3,
+    message: "Resolution accepted by citizen",
+    time: "3 hours ago",
+    unread: false,
   },
-  {
-    name: "Barangays",
-    href: "/admin/barangays",
-    icon: MapPin,
-  },
-  {
-    name: "Departments",
-    href: "/admin/departments",
-    icon: Building2,
-  },
-  {
-    name: "LGU Users",
-    href: "/admin/users",
-    icon: Users,
-  },
-
-  // {
-  //   name: "Settings",
-  //   href: "/admin/settings",
-  //   icon: Settings,
-  // },
 ];
 
-const auth = {
-  user: {
-    name: "Juan Dela Cruz",
-    email: "admin@malaybalay.gov.ph",
-  },
-  role: "LGU Admin",
-};
-
-export default function AdminLayout({ children, header }) {
+export default function OfficeLayout({ office, header, children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
@@ -75,25 +45,12 @@ export default function AdminLayout({ children, header }) {
   const location = useLocation();
   const pathname = location.pathname;
 
-  const notifications = [
-    {
-      id: 1,
-      message: "New road damage report submitted",
-      time: "5 min ago",
-      unread: true,
-    },
-    {
-      id: 2,
-      message: "Flooding incident updated to In Progress",
-      time: "1 hour ago",
-      unread: true,
-    },
-    {
-      id: 3,
-      message: "Streetlight report assigned to City Engineer",
-      time: "2 hours ago",
-      unread: false,
-    },
+  const OfficeIcon = office.icon;
+
+  const navigation = [
+    { name: "Overview", href: `/office/${office.slug}/overview`, icon: LayoutDashboard },
+    { name: "Reports", href: `/office/${office.slug}/reports`, icon: ClipboardList },
+    { name: "Map", href: `/office/${office.slug}/map`, icon: Map },
   ];
 
   return (
@@ -120,11 +77,8 @@ export default function AdminLayout({ children, header }) {
             <ApplicationLogo size={56} />
 
             <div>
-              {/* <h1 className="text-2xl font-extrabold text-green-800">
-                VAL<span className="text-red-600">O</span>R
-              </h1> */}
               <img src={ValorLogo} alt="ACORS Logo" className="h-6 w-auto" />
-              <p className="text-xs text-gray-500 mt-1">LGU Dashboard</p>
+              <p className="mt-1 text-xs text-gray-500">LGU Office Portal</p>
             </div>
           </div>
 
@@ -156,21 +110,12 @@ export default function AdminLayout({ children, header }) {
           <div className="mt-auto">
             <div className="mb-4 space-y-1 border-t border-zinc-200 pt-4 lg:hidden">
               <Link
-                to="/admin/profile"
+                to="/admin/overview"
                 onClick={() => setSidebarOpen(false)}
                 className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100"
               >
-                <User className="h-4 w-4" />
-                Profile
-              </Link>
-
-              <Link
-                to="/admin/settings"
-                onClick={() => setSidebarOpen(false)}
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100"
-              >
-                <Settings className="h-4 w-4" />
-                Settings
+                <ArrowLeft className="h-4 w-4" />
+                Back to Admin Console
               </Link>
 
               <button
@@ -193,10 +138,10 @@ export default function AdminLayout({ children, header }) {
 
               <div className="min-w-0 flex-1">
                 <p className="text-[11px] font-medium leading-tight text-zinc-500">
-                  City of Malaybalay
+                  {office.name}
                 </p>
                 <p className="mt-0.5 text-sm font-semibold leading-tight text-zinc-800">
-                  Administrator
+                  {office.holder}
                 </p>
               </div>
 
@@ -231,20 +176,11 @@ export default function AdminLayout({ children, header }) {
             )}
 
             {/* Search bar */}
-            <div className="ml-auto hidden w-full max-w-md md:block">
-                {/* <div className="relative">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
-                  <input
-                    type="text"
-                    placeholder="Search reports, incidents, barangays..."
-                    className="h-10 w-full rounded-xl border border-zinc-200 bg-zinc-50 pl-10 pr-4 text-sm focus:border-green-700 focus:outline-none focus:ring-1 focus:ring-green-700"
-                  />
-                </div> */}
-            </div>
+            <div className="ml-auto hidden w-full max-w-md md:block" />
 
             {/* Right section */}
             <div className="ml-auto flex items-center gap-1 sm:gap-2.5">
-              {/* Date range picker (moved from Overview) */}
+              {/* Date range picker */}
               <div className="hidden sm:block">
                 <button className="flex items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-medium text-zinc-700">
                   <Calendar size={17} />
@@ -302,7 +238,6 @@ export default function AdminLayout({ children, header }) {
                 )}
               </div>
 
-
               {/* Profile dropdown */}
               <div className="relative hidden sm:block">
                 <button
@@ -311,25 +246,15 @@ export default function AdminLayout({ children, header }) {
                   className="flex items-center gap-2 rounded-lg px-1.5 py-1.5 sm:gap-3 sm:px-3 sm:py-2 hover:bg-zinc-100"
                   aria-label="Open user menu"
                 >
-                  {auth.user.avatar ? (
-                    <img
-                      src={auth.user.avatar}
-                      alt={auth.user.name}
-                      className="h-8 w-8 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-700 text-white">
-                      <span className="text-sm font-medium">
-                        {auth.user.name.charAt(0).toUpperCase()}
-                      </span>
-                    </div>
-                  )}
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-700 text-white">
+                    <OfficeIcon size={15} />
+                  </div>
 
                   <div className="hidden text-left lg:block">
                     <div className="text-sm font-medium text-zinc-900">
-                      {auth.user.name}
+                      {office.shortName}
                     </div>
-                    <div className="text-xs text-zinc-500">{auth.role}</div>
+                    <div className="text-xs text-zinc-500">{office.role}</div>
                   </div>
 
                   <ChevronDown className="hidden h-4 w-4 text-zinc-500 lg:block" />
@@ -339,28 +264,20 @@ export default function AdminLayout({ children, header }) {
                   <div className="absolute right-0 mt-2 w-[min(13rem,calc(100vw-2rem))] overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-md">
                     <div className="border-b border-zinc-200 px-4 py-3">
                       <div className="text-sm font-medium text-zinc-900">
-                        {auth.user.name}
+                        {office.holder}
                       </div>
                       <div className="truncate text-xs text-zinc-500">
-                        {auth.user.email}
+                        {office.email}
                       </div>
                     </div>
 
                     <div className="py-2">
                       <Link
-                        to="/admin/profile"
+                        to="/admin/overview"
                         className="flex items-center gap-3 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100"
                       >
-                        <User className="h-4 w-4" />
-                        Profile
-                      </Link>
-
-                      <Link
-                        to="/admin/settings"
-                        className="flex items-center gap-3 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100"
-                      >
-                        <Settings className="h-4 w-4" />
-                        Settings
+                        <ArrowLeft className="h-4 w-4" />
+                        Back to Admin Console
                       </Link>
                     </div>
 

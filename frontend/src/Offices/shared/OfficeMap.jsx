@@ -1,4 +1,4 @@
-// src/Admin/Map.jsx
+// src/Offices/shared/OfficeMap.jsx
 import { useState } from "react";
 import {
   Search,
@@ -10,15 +10,7 @@ import {
   MapPin,
   Eye,
 } from "lucide-react";
-import AdminLayout from "../Layouts/AdminLayouts";
-import {
-  allIncidents,
-  allOffices,
-  officeColors,
-  officeFilterOptions,
-} from "./adminData";
-
-const filters = ["All", "Road", "Flooding", "Garbage", "Streetlight", "Public Safety"];
+import OfficeLayout from "../OfficeLayout";
 
 const barangays = [
   "All Barangays",
@@ -38,9 +30,22 @@ const statuses = [
   "Resolved",
 ];
 
-export default function AdminMap() {
+function markerTone(count) {
+  if (count >= 12) return "bg-red-700";
+  if (count >= 6) return "bg-red-500";
+  return "bg-amber-500";
+}
+
+const legendTones = [
+  "bg-red-700",
+  "bg-red-600",
+  "bg-red-500",
+  "bg-red-400",
+  "bg-gray-400",
+];
+
+export default function OfficeMap({ office }) {
   const [query, setQuery] = useState("");
-  const [officeFilter, setOfficeFilter] = useState("All Offices");
   const [barangayFilter, setBarangayFilter] = useState("All Barangays");
   const [statusFilter, setStatusFilter] = useState("All Statuses");
   const [categoryFilter, setCategoryFilter] = useState("All");
@@ -48,37 +53,28 @@ export default function AdminMap() {
 
   const normalizedQuery = query.trim().toLowerCase();
 
-  const filteredIncidents = allIncidents.filter((incident) => {
+  const incidents = office.incidents;
+
+  const filteredIncidents = incidents.filter((incident) => {
     const matchesQuery =
       normalizedQuery === "" ||
       [incident.id, incident.title, incident.barangay, incident.category].some(
         (field) => field.toLowerCase().includes(normalizedQuery)
       );
 
-    const matchesOffice =
-      officeFilter === "All Offices" || incident.office === officeFilter;
     const matchesBarangay =
       barangayFilter === "All Barangays" ||
       incident.barangay === barangayFilter;
     const matchesStatus =
       statusFilter === "All Statuses" || incident.status === statusFilter;
     const matchesCategory =
-      categoryFilter === "All" ||
-      (categoryFilter === "Public Safety"
-        ? incident.category === "Obstruction"
-        : incident.category.includes(categoryFilter));
+      categoryFilter === "All" || incident.category === categoryFilter;
 
-    return (
-      matchesQuery &&
-      matchesOffice &&
-      matchesBarangay &&
-      matchesStatus &&
-      matchesCategory
-    );
+    return matchesQuery && matchesBarangay && matchesStatus && matchesCategory;
   });
 
   return (
-    <AdminLayout>
+    <OfficeLayout office={office} header={`${office.shortName} Map`}>
       <div className="space-y-4 sm:space-y-6">
         {/* Header */}
         <header className="flex animate-fade-up flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -88,7 +84,7 @@ export default function AdminMap() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-600 opacity-60" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-red-600" />
               </span>
-              Malaybalay · Incident Map
+              Malaybalay · {office.name}
             </p>
             <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl">
               Report Map
@@ -97,7 +93,7 @@ export default function AdminMap() {
 
           <div className="flex flex-col gap-3 sm:items-end">
             <p className="font-mono text-[11px] font-medium tracking-wide text-gray-500">
-              <span className="font-bold text-gray-900">{filteredIncidents.length}</span>{" "}
+              <span className="font-bold text-gray-900">{incidents.length}</span>{" "}
               ACTIVE INCIDENTS · SYNCED 09:41 AM
             </p>
 
@@ -127,7 +123,7 @@ export default function AdminMap() {
           className="animate-fade-up rounded-2xl border border-gray-200/70 bg-white p-4 shadow-sm sm:p-5"
           style={{ animationDelay: "40ms" }}
         >
-          <div className="grid gap-4 lg:grid-cols-[1fr_auto_auto_auto_auto]">
+          <div className="grid gap-4 lg:grid-cols-[1fr_auto_auto]">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <input
@@ -139,12 +135,6 @@ export default function AdminMap() {
               />
             </div>
 
-            <SelectFilter
-              label="Office"
-              value={officeFilter}
-              onChange={setOfficeFilter}
-              options={officeFilterOptions}
-            />
             <SelectFilter
               label="Barangay"
               value={barangayFilter}
@@ -160,7 +150,7 @@ export default function AdminMap() {
           </div>
 
           <div className="mt-4 flex gap-2 overflow-x-auto">
-            {filters.map((filter) => (
+            {["All", ...office.categories].map((filter) => (
               <button
                 key={filter}
                 onClick={() => setCategoryFilter(filter)}
@@ -206,7 +196,7 @@ export default function AdminMap() {
             </div>
 
             <div className="mt-5">
-              <MapView heatmap={heatmapView} incidents={filteredIncidents} />
+              <MapView heatmap={heatmapView} incidents={incidents} />
             </div>
           </div>
 
@@ -215,7 +205,7 @@ export default function AdminMap() {
             className="animate-fade-up space-y-6 xl:col-span-4"
             style={{ animationDelay: "140ms" }}
           >
-            <MapLegend />
+            <MapLegend categories={office.categories} />
 
             <div className="rounded-3xl border border-gray-200/70 bg-white p-4 shadow-sm sm:p-5">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -244,7 +234,7 @@ export default function AdminMap() {
           </aside>
         </section>
       </div>
-    </AdminLayout>
+    </OfficeLayout>
   );
 }
 
@@ -322,7 +312,9 @@ function MapView({ heatmap, incidents }) {
           <button
             key={incident.id}
             title={incident.title}
-            className={`absolute flex h-10 w-10 items-center justify-center rounded-full font-mono text-sm font-bold text-white shadow-md ring-2 ring-white/60 transition hover:scale-110 sm:h-14 sm:w-14 sm:text-lg ${officeColors[incident.office].marker}`}
+            className={`absolute flex h-10 w-10 items-center justify-center rounded-full font-mono text-sm font-bold text-white shadow-md ring-2 ring-white/60 transition hover:scale-110 sm:h-14 sm:w-14 sm:text-lg ${markerTone(
+              incident.count
+            )}`}
             style={{
               top: incident.top,
               left: incident.left,
@@ -381,7 +373,7 @@ function HeatBlob({ incident }) {
 
   return (
     <div
-      className={`pointer-events-none absolute rounded-full blur-2xl ${officeColors[incident.office].heat}`}
+      className="pointer-events-none absolute rounded-full bg-red-500/45 blur-2xl"
       style={{
         top: incident.top,
         left: incident.left,
@@ -394,21 +386,23 @@ function HeatBlob({ incident }) {
   );
 }
 
-function MapLegend() {
+function MapLegend({ categories }) {
+  const legendItems = categories.map((category, index) => ({
+    label: category,
+    tone: legendTones[index % legendTones.length],
+  }));
+
   return (
     <div className="rounded-3xl border border-gray-200/70 bg-white p-4 shadow-sm sm:p-5">
-      <h2 className="text-lg font-extrabold text-gray-900">Office Legend</h2>
-      <p className="mt-1 text-sm text-gray-500">
-        Markers are colored by the assigned LGU office.
-      </p>
+      <h2 className="text-lg font-extrabold text-gray-900">Map Legend</h2>
 
       <div className="mt-5 space-y-3">
-        {allOffices.map((office) => (
-          <div key={office.slug} className="flex items-center gap-3">
+        {legendItems.map((legend) => (
+          <div key={legend.label} className="flex items-center gap-3">
             <span
-              className={`h-2.5 w-2.5 shrink-0 rounded-full ${officeColors[office.shortName].marker}`}
+              className={`h-2.5 w-2.5 shrink-0 rounded-full ${legend.tone}`}
             />
-            <p className="text-sm font-medium text-gray-700">{office.name}</p>
+            <p className="text-sm font-medium text-gray-700">{legend.label}</p>
           </div>
         ))}
       </div>
@@ -430,7 +424,9 @@ function IncidentCard({ incident }) {
         </div>
 
         <span
-          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full font-mono text-xs font-bold text-white ${officeColors[incident.office].marker}`}
+          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full font-mono text-xs font-bold text-white ${markerTone(
+            incident.count
+          )}`}
         >
           {incident.count}
         </span>
@@ -438,7 +434,7 @@ function IncidentCard({ incident }) {
 
       <div className="mt-3 flex items-center gap-2 text-xs font-medium text-gray-500">
         <MapPin size={14} className="shrink-0 text-red-700" />
-        {incident.barangay}, Malaybalay City · {incident.office}
+        {incident.barangay}, Malaybalay City
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-3">
