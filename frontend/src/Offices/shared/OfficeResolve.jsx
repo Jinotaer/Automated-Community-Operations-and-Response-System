@@ -1,34 +1,59 @@
-// src/Offices/shared/OfficeReports.jsx
+// src/Offices/shared/OfficeResolve.jsx
 import { useState } from "react";
 import {
   Search,
   ChevronDown,
   MoreHorizontal,
-  CheckCircle,
-  XCircle,
   MapPin,
-  Download,
+  CheckCircle2,
 } from "lucide-react";
 import OfficeLayout from "../OfficeLayout";
 
-const statuses = ["All", "Pending", "Under Review", "Assigned", "In Progress", "Resolved"];
-
-export default function OfficeReports({ office }) {
-  const [reports, setReports] = useState(office.recentReports);
+export default function OfficeResolve({ office }) {
+  const [reports] = useState(office.recentReports);
   const [selectedReport, setSelectedReport] = useState(reports[0]);
   const [query, setQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
   const [categoryFilter, setCategoryFilter] = useState("All Categories");
+
+  const resolvedReports = reports.filter(
+    (report) => report.status === "Resolved"
+  );
+
+  const officeTotal = office.stats.find((stat) => stat.title === "Resolved");
+  const avgResponse = office.stats.find(
+    (stat) => stat.title === "Avg. Response"
+  );
+
+  const summary = [
+    {
+      label: "Resolved Reports",
+      value: resolvedReports.length,
+      tone: "text-emerald-700",
+      accent: "bg-emerald-600",
+    },
+    {
+      label: "Office Total Resolved",
+      value: officeTotal?.value || "0",
+      tone: "text-gray-900",
+      accent: "bg-red-700",
+    },
+    {
+      label: "Avg. Response",
+      value: avgResponse?.value || "—",
+      tone: "text-gray-900",
+      accent: "bg-amber-500",
+    },
+  ];
 
   const normalizedQuery = query.trim().toLowerCase();
 
-  const filteredReports = reports.filter((report) => {
+  const filteredReports = resolvedReports.filter((report) => {
     const matchesQuery =
       normalizedQuery === "" ||
       [
         report.id,
-        report.title,
         report.issue,
+        report.title,
         report.description,
         report.location,
         report.barangay,
@@ -37,13 +62,10 @@ export default function OfficeReports({ office }) {
         .filter(Boolean)
         .some((field) => field.toLowerCase().includes(normalizedQuery));
 
-    const matchesStatus =
-      statusFilter === "All" || report.status === statusFilter;
     const matchesCategory =
-      categoryFilter === "All Categories" ||
-      report.category === categoryFilter;
+      categoryFilter === "All Categories" || report.category === categoryFilter;
 
-    return matchesQuery && matchesStatus && matchesCategory;
+    return matchesQuery && matchesCategory;
   });
 
   const selectedIsVisible =
@@ -53,77 +75,58 @@ export default function OfficeReports({ office }) {
     ? selectedReport
     : filteredReports[0] || null;
 
-  const handleResolve = () => {
-    if (!visibleReport) return;
-    setReports((prev) =>
-      prev.map((report) =>
-        report.id === visibleReport.id
-          ? { ...report, status: "Resolved" }
-          : report
-      )
-    );
-    setSelectedReport((current) =>
-      current ? { ...current, status: "Resolved" } : current
-    );
-  };
-
-  const handleReject = () => {
-    if (!visibleReport) return;
-    setReports((prev) =>
-      prev.map((report) =>
-        report.id === visibleReport.id
-          ? { ...report, status: "Rejected" }
-          : report
-      )
-    );
-    setSelectedReport((current) =>
-      current ? { ...current, status: "Rejected" } : current
-    );
-  };
-
-  const clearFilters = () => {
-    setQuery("");
-    setStatusFilter("All");
-    setCategoryFilter("All Categories");
-  };
-
   return (
-    <OfficeLayout office={office} header={`${office.shortName} Reports`}>
+    <OfficeLayout office={office} header={`${office.shortName} Resolve`}>
       <div className="space-y-4 sm:space-y-6">
         {/* Header */}
         <header className="flex animate-fade-up flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.22em] text-gray-500">
               <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-600 opacity-60" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-red-600" />
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
               </span>
               Malaybalay · {office.name}
             </p>
             <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl">
-              Reports Management
+              Resolved Reports
             </h1>
           </div>
 
-          <div className="flex flex-col gap-3 sm:items-end">
-            <p className="font-mono text-[11px] font-medium tracking-wide text-gray-500">
-              <span className="font-bold text-gray-900">{reports.length}</span>{" "}
-              ACTIVE REPORTS · SYNCED 09:41 AM
-            </p>
-
-            <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-bold text-gray-700 transition hover:bg-gray-50 active:translate-y-px sm:w-auto">
-              <Download size={17} />
-              Export
-            </button>
-          </div>
+          <p className="font-mono text-[11px] font-medium tracking-wide text-gray-500">
+            <span className="font-bold text-emerald-700">
+              {resolvedReports.length}
+            </span>{" "}
+            RESOLVED · SYNCED 09:41 AM
+          </p>
         </header>
+
+        {/* Summary strip */}
+        <section
+          className="grid animate-fade-up grid-cols-1 divide-y divide-gray-100 rounded-3xl border border-gray-200/70 bg-white shadow-sm sm:grid-cols-3 sm:divide-x sm:divide-y-0"
+          style={{ animationDelay: "40ms" }}
+        >
+          {summary.map((item) => (
+            <div key={item.label} className="flex items-center gap-4 p-5">
+              <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${item.accent}`} />
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500">
+                  {item.label}
+                </p>
+                <p className={`mt-1 font-mono text-2xl font-extrabold ${item.tone}`}>
+                  {item.value}
+                </p>
+              </div>
+            </div>
+          ))}
+        </section>
 
         {/* Filters */}
         <section
           className="animate-fade-up rounded-2xl border border-gray-200/70 bg-white p-4 shadow-sm sm:p-5"
-          style={{ animationDelay: "40ms" }}
+          style={{ animationDelay: "80ms" }}
         >
-          <div className="grid gap-4 lg:grid-cols-[1fr_auto_auto]">
+          <div className="grid gap-4 lg:grid-cols-[1fr_auto]">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <input
@@ -135,12 +138,6 @@ export default function OfficeReports({ office }) {
               />
             </div>
 
-            <SelectFilter
-              label="Status"
-              value={statusFilter}
-              onChange={setStatusFilter}
-              options={statuses}
-            />
             <SelectFilter
               label="Category"
               value={categoryFilter}
@@ -155,20 +152,20 @@ export default function OfficeReports({ office }) {
           {/* Reports Table */}
           <div
             className="animate-fade-up rounded-3xl border border-gray-200/70 bg-white p-4 shadow-sm sm:p-5 xl:col-span-8"
-            style={{ animationDelay: "80ms" }}
+            style={{ animationDelay: "120ms" }}
           >
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h2 className="text-lg font-extrabold text-gray-900">
-                  Assigned Citizen Reports
+                  Resolved by {office.shortName}
                 </h2>
                 <p className="text-sm text-gray-500">
-                  Reports routed to {office.name}.
+                  Reports that have been closed by {office.name}.
                 </p>
               </div>
 
               <p className="font-mono text-[11px] font-medium text-gray-500">
-                {filteredReports.length} OF {reports.length}
+                {filteredReports.length} OF {resolvedReports.length}
               </p>
             </div>
 
@@ -180,8 +177,7 @@ export default function OfficeReports({ office }) {
                     <th className="px-3 py-3 text-left font-semibold">Location</th>
                     <th className="px-3 py-3 text-left font-semibold">Category</th>
                     <th className="px-3 py-3 text-left font-semibold">Priority</th>
-                    <th className="px-3 py-3 text-left font-semibold">Status</th>
-                    <th className="px-3 py-3 text-left font-semibold">Action</th>
+                    <th className="px-3 py-3 text-left font-semibold">Resolved On</th>
                   </tr>
                 </thead>
 
@@ -197,16 +193,10 @@ export default function OfficeReports({ office }) {
 
                   {filteredReports.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="px-3 py-14 text-center">
+                      <td colSpan={5} className="px-3 py-14 text-center">
                         <p className="font-mono text-xs font-medium uppercase tracking-[0.18em] text-gray-500">
-                          No reports match your filters
+                          No resolved reports match your filters
                         </p>
-                        <button
-                          onClick={clearFilters}
-                          className="mt-4 rounded-xl border border-gray-200 bg-white px-4 py-2 text-xs font-bold text-gray-700 transition hover:bg-gray-50 active:translate-y-px"
-                        >
-                          Clear Filters
-                        </button>
                       </td>
                     </tr>
                   )}
@@ -218,11 +208,11 @@ export default function OfficeReports({ office }) {
           {/* Report Details Panel */}
           <aside
             className="animate-fade-up rounded-3xl border border-gray-200/70 bg-white p-4 shadow-sm sm:p-5 xl:col-span-4"
-            style={{ animationDelay: "140ms" }}
+            style={{ animationDelay: "180ms" }}
           >
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-extrabold text-gray-900">
-                Report Details
+                Resolution Details
               </h2>
               <button className="rounded-lg p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700">
                 <MoreHorizontal size={18} />
@@ -239,6 +229,10 @@ export default function OfficeReports({ office }) {
                   />
                   <span className="absolute left-3 top-3 rounded-lg bg-white/90 px-2.5 py-1 font-mono text-[11px] font-bold text-gray-700 shadow-sm backdrop-blur">
                     {visibleReport.id}
+                  </span>
+                  <span className="absolute right-3 top-3 flex items-center gap-1.5 rounded-lg bg-emerald-600/95 px-2.5 py-1 text-[11px] font-bold text-white shadow-sm backdrop-blur">
+                    <CheckCircle2 size={14} />
+                    Resolved
                   </span>
                 </div>
 
@@ -278,42 +272,31 @@ export default function OfficeReports({ office }) {
                       <PriorityBadge priority={visibleReport.priority} />
                     </InfoBox>
 
-                    <InfoBox label="Status">
-                      <StatusBadge status={visibleReport.status} />
-                    </InfoBox>
-
                     <InfoBox label="Reported On">
                       <p className="font-mono text-xs font-bold text-gray-800">
                         {visibleReport.reported}
                       </p>
                     </InfoBox>
+
+                    <InfoBox label="Resolved On">
+                      <p className="font-mono text-xs font-bold text-emerald-700">
+                        {visibleReport.resolved || "—"}
+                      </p>
+                    </InfoBox>
                   </div>
 
-                  <div className="grid grid-cols-1 gap-3 pt-2 sm:grid-cols-2">
-                    <button
-                      onClick={handleResolve}
-                      disabled={visibleReport.status === "Resolved"}
-                      className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-700 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      <CheckCircle size={17} />
-                      Resolve
-                    </button>
-
-                    <button
-                      onClick={handleReject}
-                      disabled={visibleReport.status === "Rejected"}
-                      className="flex items-center justify-center gap-2 rounded-xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700 transition hover:bg-red-100 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      <XCircle size={17} />
-                      Reject
-                    </button>
+                  <div className="flex items-center gap-3 rounded-2xl bg-emerald-50 p-4">
+                    <CheckCircle2 size={20} className="shrink-0 text-emerald-600" />
+                    <p className="text-sm font-semibold text-emerald-800">
+                      This report has been resolved by {office.shortName}.
+                    </p>
                   </div>
                 </div>
               </div>
             ) : (
               <div className="py-14 text-center">
                 <p className="font-mono text-xs font-medium uppercase tracking-[0.18em] text-gray-500">
-                  Select a report
+                  Select a resolved report
                 </p>
               </div>
             )}
@@ -352,7 +335,7 @@ function ReportRow({ report, selected, onClick }) {
     <tr
       onClick={onClick}
       className={`cursor-pointer border-b border-gray-100 transition last:border-b-0 ${
-        selected ? "bg-red-50/60" : "hover:bg-gray-50/60"
+        selected ? "bg-emerald-50/60" : "hover:bg-gray-50/60"
       }`}
     >
       <td className="px-3 py-4">
@@ -367,7 +350,7 @@ function ReportRow({ report, selected, onClick }) {
               {report.issue || report.title}
             </p>
             <p className="mt-0.5 font-mono text-[11px] font-medium text-gray-500">
-              {report.reported}
+              {report.id} · {report.reported}
             </p>
           </div>
         </div>
@@ -387,13 +370,10 @@ function ReportRow({ report, selected, onClick }) {
       </td>
 
       <td className="px-3 py-4">
-        <StatusBadge status={report.status} />
-      </td>
-
-      <td className="px-3 py-4">
-        <button className="rounded-lg p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700">
-          <MoreHorizontal size={18} />
-        </button>
+        <span className="inline-flex items-center gap-1.5 font-mono text-xs font-semibold text-emerald-700">
+          <CheckCircle2 size={14} />
+          {report.resolved || "—"}
+        </span>
       </td>
     </tr>
   );
@@ -415,28 +395,6 @@ function PriorityBadge({ priority }) {
     >
       <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} />
       {priority}
-    </span>
-  );
-}
-
-function StatusBadge({ status }) {
-  const styles = {
-    Pending: { dot: "bg-gray-400", text: "text-gray-500" },
-    "Under Review": { dot: "bg-amber-500", text: "text-amber-700" },
-    Assigned: { dot: "bg-sky-600", text: "text-sky-700" },
-    "In Progress": { dot: "bg-red-600", text: "text-red-700" },
-    Resolved: { dot: "bg-emerald-600", text: "text-emerald-700" },
-    Rejected: { dot: "bg-rose-600", text: "text-rose-700" },
-  };
-
-  const style = styles[status] || styles.Pending;
-
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 text-xs font-semibold ${style.text}`}
-    >
-      <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} />
-      {status}
     </span>
   );
 }

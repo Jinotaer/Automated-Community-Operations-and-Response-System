@@ -19,18 +19,23 @@ import Users from "./Admin/Users";
 import EngineeringOverview from "./Offices/Engineering/Overview";
 import EngineeringReports from "./Offices/Engineering/Reports";
 import EngineeringMap from "./Offices/Engineering/Map";
+import EngineeringResolve from "./Offices/Engineering/Resolve";
 import CenroOverview from "./Offices/CENRO/Overview";
 import CenroReports from "./Offices/CENRO/Reports";
 import CenroMap from "./Offices/CENRO/Map";
+import CenroResolve from "./Offices/CENRO/Resolve";
 import CdrrmoOverview from "./Offices/CDRRMO/Overview";
 import CdrrmoReports from "./Offices/CDRRMO/Reports";
 import CdrrmoMap from "./Offices/CDRRMO/Map";
+import CdrrmoResolve from "./Offices/CDRRMO/Resolve";
 import TrafficOverview from "./Offices/Traffic/Overview";
 import TrafficReports from "./Offices/Traffic/Reports";
 import TrafficMap from "./Offices/Traffic/Map";
+import TrafficResolve from "./Offices/Traffic/Resolve";
 import HealthOverview from "./Offices/Health/Overview";
 import HealthReports from "./Offices/Health/Reports";
 import HealthMap from "./Offices/Health/Map";
+import HealthResolve from "./Offices/Health/Resolve";
 
 function App() {
   return (
@@ -55,18 +60,23 @@ function App() {
         <Route path="/office/engineering/overview" element={<EngineeringOverview />} />
         <Route path="/office/engineering/reports" element={<EngineeringReports />} />
         <Route path="/office/engineering/map" element={<EngineeringMap />} />
+        <Route path="/office/engineering/resolve" element={<EngineeringResolve />} />
         <Route path="/office/cenro/overview" element={<CenroOverview />} />
         <Route path="/office/cenro/reports" element={<CenroReports />} />
         <Route path="/office/cenro/map" element={<CenroMap />} />
+        <Route path="/office/cenro/resolve" element={<CenroResolve />} />
         <Route path="/office/cdrrmo/overview" element={<CdrrmoOverview />} />
         <Route path="/office/cdrrmo/reports" element={<CdrrmoReports />} />
         <Route path="/office/cdrrmo/map" element={<CdrrmoMap />} />
+        <Route path="/office/cdrrmo/resolve" element={<CdrrmoResolve />} />
         <Route path="/office/traffic/overview" element={<TrafficOverview />} />
         <Route path="/office/traffic/reports" element={<TrafficReports />} />
         <Route path="/office/traffic/map" element={<TrafficMap />} />
+        <Route path="/office/traffic/resolve" element={<TrafficResolve />} />
         <Route path="/office/health/overview" element={<HealthOverview />} />
         <Route path="/office/health/reports" element={<HealthReports />} />
         <Route path="/office/health/map" element={<HealthMap />} />
+        <Route path="/office/health/resolve" element={<HealthResolve />} />
         <Route path="/admin/settings" element={<AdminSettings />} />
       </Routes>
     </BrowserRouter>

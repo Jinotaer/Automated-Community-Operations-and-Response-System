@@ -5,6 +5,7 @@ import {
   LayoutDashboard,
   ClipboardList,
   Map,
+  CheckCircle2,
   LogOut,
   Menu,
   ChevronDown,
@@ -51,6 +52,7 @@ export default function OfficeLayout({ office, header, children }) {
     { name: "Overview", href: `/office/${office.slug}/overview`, icon: LayoutDashboard },
     { name: "Reports", href: `/office/${office.slug}/reports`, icon: ClipboardList },
     { name: "Map", href: `/office/${office.slug}/map`, icon: Map },
+    { name: "Resolve", href: `/office/${office.slug}/resolve`, icon: CheckCircle2 },
   ];
 
   return (
