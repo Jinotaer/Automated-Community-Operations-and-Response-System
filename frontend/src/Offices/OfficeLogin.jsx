@@ -68,7 +68,7 @@ export default function OfficeLogin() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = "Sign in — ACORS Office Portal";
+    document.title = "Sign in — ACORS Portal";
   }, []);
 
   function validate() {
@@ -153,7 +153,7 @@ export default function OfficeLogin() {
 
             <p className="mt-6 max-w-md text-base leading-7 text-zinc-300">
               Sign in with your LGU account to claim reports assigned to your
-              office, update progress, and close them out for your barangays.
+              department, update progress, and close them out for your barangays.
             </p>
           </div>
 
@@ -167,7 +167,7 @@ export default function OfficeLogin() {
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
               </span>
               <span className="text-xs font-semibold text-zinc-200">
-                5 offices · 147 assigned reports
+                6 departments · 147 assigned reports
               </span>
             </div>
           </div>
@@ -213,14 +213,14 @@ export default function OfficeLogin() {
         <div className="flex flex-1 flex-col justify-center px-6 py-10 sm:px-12 lg:px-16 xl:px-24">
           <div className="mx-auto w-full max-w-md animate-fade-up">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-red-600">
-              LGU office portal
+              LGU portal
             </p>
 
             <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-zinc-900 sm:text-4xl">
-              Office sign in.
+              Sign in.
             </h2>
             <p className="mt-2 text-sm leading-6 text-zinc-500">
-              Sign in with your office account to manage assigned reports.
+              Sign in with your LGU account to manage assigned reports.
             </p>
 
             <form onSubmit={handleSubmit} noValidate className="mt-8 space-y-5">
@@ -483,7 +483,7 @@ function OfficeBrand({ light = false }) {
             light ? "text-zinc-300" : "text-zinc-500"
           }`}
         >
-          LGU Office
+          LGU
           <br />
           Portal
         </p>
