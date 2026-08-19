@@ -1,22 +1,74 @@
-// src/Admin/Login.jsx
+// src/Offices/OfficeLogin.jsx
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, ShieldAlert } from "lucide-react";
+import {
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  Loader2,
+  Building2,
+  ShieldAlert,
+  KeyRound,
+  X,
+} from "lucide-react";
 import ApplicationLogo from "../Components/ApplicationLogo";
 import lguResponse from "../assets/bg.jpg";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export default function Login() {
+const MOCK_ACCOUNTS = [
+  {
+    office: "City Engineering Office",
+    email: "engineering@malaybalay.gov.ph",
+    password: "acors2025",
+    officeSlug: "engineering",
+  },
+  {
+    office: "CENRO",
+    email: "cenro@malaybalay.gov.ph",
+    password: "acors2025",
+    officeSlug: "cenro",
+  },
+  {
+    office: "CDRRMO",
+    email: "cdrrmo@malaybalay.gov.ph",
+    password: "acors2025",
+    officeSlug: "cdrrmo",
+  },
+  {
+    office: "Traffic Management Center",
+    email: "traffic@malaybalay.gov.ph",
+    password: "acors2025",
+    officeSlug: "traffic",
+  },
+  {
+    office: "City Health Office",
+    email: "health@malaybalay.gov.ph",
+    password: "acors2025",
+    officeSlug: "health",
+  },
+  {
+    office: "City Tourism Office",
+    email: "tourism@malaybalay.gov.ph",
+    password: "acors2025",
+    officeSlug: "tourism",
+  },
+];
+
+export default function OfficeLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
+  const [formError, setFormError] = useState("");
+  const [demoOpen, setDemoOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = "Sign in - ACORS Admin Console";
+    document.title = "Sign in — ACORS Office Portal";
   }, []);
 
   function validate() {
@@ -34,29 +86,53 @@ export default function Login() {
     return next;
   }
 
+  function useDemoAccount(account) {
+    setEmail(account.email);
+    setPassword(account.password);
+    setErrors({});
+    setFormError("");
+    setDemoOpen(false);
+  }
+
   function handleSubmit(event) {
     event.preventDefault();
     const next = validate();
     setErrors(next);
     if (Object.keys(next).length > 0) return;
+
+    const account = MOCK_ACCOUNTS.find(
+      (mock) =>
+        email.trim().toLowerCase() === mock.email &&
+        password === mock.password
+    );
+
+    if (!account) {
+      setFormError("Invalid credentials. Use one of the demo accounts below.");
+      return;
+    }
+
+    setFormError("");
     setIsLoading(true);
-    window.setTimeout(() => navigate("/admin/overview"), 900);
+    window.setTimeout(
+      () => navigate(`/office/${account.officeSlug}/overview`),
+      900
+    );
   }
 
   return (
     <div className="grid min-h-[100dvh] bg-[#F4F7F5] text-zinc-900 lg:grid-cols-2">
-      {/* Operations Panel - Desktop */}
+      {/* Operations Panel — Desktop */}
       <section className="relative hidden min-h-[100dvh] overflow-hidden lg:flex lg:flex-col lg:justify-between">
         <img
           src={lguResponse}
           alt="Local government response team reviewing city operations"
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-red-950/95 via-red-950/75 to-red-900/35" />
+         <div className="absolute inset-0 bg-gradient-to-br from-red-950/95 via-red-950/75 to-red-900/35" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.18),transparent_40%)]" />
 
         <div className="relative z-10 flex items-center justify-between p-10">
-          <AdminBrand light />
+          <OfficeBrand light />
 
           <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold tracking-[0.18em] text-zinc-200 backdrop-blur-sm animate-fade-up">
             <ShieldAlert size={13} className="text-red-400" />
@@ -67,7 +143,7 @@ export default function Login() {
         <div className="relative z-10 p-10 pb-12 lg:max-w-2xl">
           <div className="animate-fade-up">
             <h1 className="text-5xl font-extrabold leading-[1.08] tracking-tight text-white xl:text-6xl">
-              Receive it. Route it.{" "}
+              Review it. Respond it.{" "}
               <ApplicationLogo
                 className="inline-block h-11 w-11 translate-y-[-2px] rounded-xl object-cover align-middle shadow-[0_10px_24px_rgba(0,0,0,0.3)] ring-2 ring-white/25"
                 size={44}
@@ -76,8 +152,8 @@ export default function Login() {
             </h1>
 
             <p className="mt-6 max-w-md text-base leading-7 text-zinc-300">
-              Sign in with your LGU account to review reports, assign
-              departments, and track city-wide response in real time.
+              Sign in with your LGU account to claim reports assigned to your
+              office, update progress, and close them out for your barangays.
             </p>
           </div>
 
@@ -91,7 +167,7 @@ export default function Login() {
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
               </span>
               <span className="text-xs font-semibold text-zinc-200">
-                86 active incidents · 12 critical
+                5 offices · 147 assigned reports
               </span>
             </div>
           </div>
@@ -100,16 +176,15 @@ export default function Login() {
             className="mt-6 flex max-w-md items-center gap-4 rounded-3xl border border-white/15 bg-white/10 p-6 backdrop-blur-sm animate-fade-up"
             style={{ animationDelay: "240ms" }}
           >
-            <ApplicationLogo
-              className="h-12 w-12 shrink-0 rounded-full object-cover ring-2 ring-white/20"
-              size={48}
-            />
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-red-600 text-white">
+              <Building2 size={20} />
+            </div>
             <div className="min-w-0">
               <p className="text-sm font-semibold text-zinc-100">
-                Road damage - Managok
+                City Engineering Office
               </p>
               <p className="mt-1 text-xs leading-5 text-zinc-400">
-                Assigned to City Engineering · 32 min ago
+                48 assigned · 8 critical · 2.4 hrs avg response
               </p>
             </div>
             <span className="ml-auto shrink-0 rounded-full bg-red-500/15 px-3 py-1 text-[10px] font-bold text-red-300">
@@ -131,25 +206,33 @@ export default function Login() {
           <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/70 via-zinc-950/45 to-zinc-950/90" />
 
           <div className="absolute left-5 top-5">
-            <AdminBrand light />
+            <OfficeBrand light />
           </div>
         </div>
 
         <div className="flex flex-1 flex-col justify-center px-6 py-10 sm:px-12 lg:px-16 xl:px-24">
           <div className="mx-auto w-full max-w-md animate-fade-up">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-red-600">
-              LGU operations
+              LGU office portal
             </p>
 
             <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-zinc-900 sm:text-4xl">
-              Admin console.
+              Office sign in.
             </h2>
             <p className="mt-2 text-sm leading-6 text-zinc-500">
-              Sign in to review reports, assign departments, and monitor city
-              response.
+              Sign in with your office account to manage assigned reports.
             </p>
 
             <form onSubmit={handleSubmit} noValidate className="mt-8 space-y-5">
+              {formError && (
+                <p
+                  role="alert"
+                  className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-medium leading-5 text-red-700"
+                >
+                  {formError}
+                </p>
+              )}
+
               <Field
                 id="email"
                 label="LGU email address"
@@ -237,53 +320,98 @@ export default function Login() {
               </button>
             </form>
 
-            <div className="my-6 flex items-center gap-4">
-              <span className="h-px flex-1 bg-zinc-200" />
-              <span className="text-xs font-medium uppercase tracking-wider text-zinc-400">
-                or
-              </span>
-              <span className="h-px flex-1 bg-zinc-200" />
-            </div>
-
-            <button
-              type="button"
-              onClick={() => navigate("/admin/overview")}
-              className="flex w-full items-center justify-center gap-3 rounded-2xl border border-zinc-200 bg-white py-3.5 text-sm font-semibold text-zinc-700 transition duration-300 hover:border-zinc-300 hover:bg-zinc-50 active:translate-y-px"
-            >
-              <GoogleMark />
-              Sign in with Google
-            </button>
-
-            <p className="mt-8 text-center text-sm text-zinc-500">
-              Need an LGU account?{" "}
-              <Link
-                to="/admin/overview"
-                className="font-semibold text-red-600 hover:text-red-700"
+            <div className="mt-6">
+              <button
+                type="button"
+                onClick={() => setDemoOpen(true)}
+                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-zinc-300 bg-transparent py-3 text-sm font-semibold text-zinc-500 transition duration-300 hover:border-red-300 hover:bg-red-50/50 hover:text-red-600 active:translate-y-px"
               >
-                Request access
-              </Link>
-            </p>
-
-            <p className="mt-3 text-center text-sm text-zinc-500">
-              <Link to="/login" className="font-semibold text-zinc-400 hover:text-zinc-600">
-                Are you a resident? Use the citizen portal
-              </Link>
-            </p>
-
-            <p className="mt-3 text-center text-sm text-zinc-500">
-              <Link to="/office/login" className="font-semibold text-zinc-400 hover:text-zinc-600">
-                Office personnel? Use the office portal
-              </Link>
-            </p>
+                <KeyRound size={16} />
+                Use a demo account
+              </button>
+            </div>
           </div>
 
           <p className="mx-auto mt-12 w-full max-w-md text-center text-xs leading-5 text-zinc-400">
-            ACORS - Automated Community Operations &amp; Response System.
+            ACORS — Automated Community Operations &amp; Response System.
             <br />
             Restricted area. Authorized LGU personnel only.
           </p>
         </div>
       </section>
+
+      {/* Demo Accounts Modal */}
+      {demoOpen && (
+        <div
+          onClick={() => setDemoOpen(false)}
+          className="fixed inset-0 z-50 flex animate-fade-in items-end justify-center bg-zinc-950/60 backdrop-blur-sm sm:items-center sm:p-6"
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Demo accounts"
+            onClick={(event) => event.stopPropagation()}
+            className="w-full max-w-md animate-modal-in rounded-t-[2rem] bg-white p-6 shadow-2xl sm:rounded-[2rem]"
+          >
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
+                  Quick access
+                </p>
+                <h3 className="mt-1 text-xl font-extrabold text-zinc-900">
+                  Demo accounts
+                </h3>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setDemoOpen(false)}
+                aria-label="Close demo accounts"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-zinc-500 transition hover:bg-zinc-200 hover:text-zinc-900"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <p className="mt-2 text-xs leading-5 text-zinc-500">
+              Password for all accounts:{" "}
+              <span className="font-mono font-semibold text-zinc-700">
+                acors2025
+              </span>
+            </p>
+
+            <ul className="mt-5 space-y-2">
+              {MOCK_ACCOUNTS.map((account) => (
+                <li key={account.officeSlug}>
+                  <button
+                    type="button"
+                    onClick={() => useDemoAccount(account)}
+                    className="group flex w-full items-center gap-3 rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-left transition hover:border-red-200 hover:bg-red-50/50 active:translate-y-px"
+                  >
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-600 text-white">
+                      <Building2 size={17} />
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold text-zinc-800">
+                        {account.office}
+                      </p>
+                      <p className="truncate font-mono text-[11px] text-zinc-500">
+                        {account.email}
+                      </p>
+                    </div>
+
+                    <ArrowRight
+                      size={16}
+                      className="shrink-0 text-zinc-300 transition group-hover:text-red-600"
+                    />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -337,7 +465,7 @@ function Field({
   );
 }
 
-function AdminBrand({ light = false }) {
+function OfficeBrand({ light = false }) {
   return (
     <div className="flex items-center gap-3">
       <ApplicationLogo className="h-12 w-auto" />
@@ -355,7 +483,7 @@ function AdminBrand({ light = false }) {
             light ? "text-zinc-300" : "text-zinc-500"
           }`}
         >
-          LGU Operations
+          LGU Office
           <br />
           Portal
         </p>
@@ -384,28 +512,5 @@ function ForgotPasswordLink() {
         </div>
       )}
     </div>
-  );
-}
-
-function GoogleMark() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
-      <path
-        fill="#4285F4"
-        d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47a5.57 5.57 0 0 1-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"
-      />
-      <path
-        fill="#34A853"
-        d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09A11.99 11.99 0 0 0 12 24z"
-      />
-      <path
-        fill="#FBBC05"
-        d="M5.27 14.29A7.2 7.2 0 0 1 4.89 12c0-.8.14-1.57.38-2.29V6.62H1.29a11.98 11.98 0 0 0 0 10.76l3.98-3.09z"
-      />
-      <path
-        fill="#EA4335"
-        d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.69 1.29 6.62l3.98 3.09C6.22 6.86 8.87 4.75 12 4.75z"
-      />
-    </svg>
   );
 }

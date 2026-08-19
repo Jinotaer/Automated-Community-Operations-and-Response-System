@@ -4,10 +4,15 @@ import Home from "./Citizen/Home";
 import CommunityUpdates from "./Citizen/CommunityUpdates";
 import MyReports from "./Citizen/Reports";
 import CityMap from "./Citizen/CityMap";
+import RequestCertificate from "./Citizen/RequestCertificate";
+import CertificateForm from "./Citizen/CertificateForm";
+import Announcements from "./Citizen/Announcements";
 import Profile from "./Citizen/Profile";
 import ReportIssue from "./Citizen/ReportIssue";
 import Login from "./Citizen/Login";
+import Register from "./Citizen/Register";
 import AdminLogin from "./Admin/Login";
+import OfficeLogin from "./Offices/OfficeLogin";
 import Overview from "./Admin/Overview";
 import AdminProfile from "./Admin/Profile";
 import ReportDetails from "./Admin/Reports";
@@ -36,6 +41,9 @@ import HealthOverview from "./Offices/Health/Overview";
 import HealthReports from "./Offices/Health/Reports";
 import HealthMap from "./Offices/Health/Map";
 import HealthResolve from "./Offices/Health/Resolve";
+import HealthAnnouncements from "./Offices/Health/Announcements";
+import TourismOverview from "./Offices/Tourism/Overview";
+import TourismAnnouncements from "./Offices/Tourism/Announcements";
 
 function App() {
   return (
@@ -46,9 +54,17 @@ function App() {
         <Route path="/community-reports" element={<CommunityUpdates />} />
         <Route path="/reports" element={<MyReports />} />
         <Route path="/map" element={<CityMap />} />
+        <Route path="/request-certificate" element={<RequestCertificate />} />
+        <Route
+          path="/request-certificate/:officeId/:certId"
+          element={<CertificateForm />}
+        />
+        <Route path="/announcements" element={<Announcements />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/report-issue" element={<ReportIssue />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/office/login" element={<OfficeLogin />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/overview" element={<Overview />} />
         <Route path="/admin/profile" element={<AdminProfile />} />
@@ -77,6 +93,9 @@ function App() {
         <Route path="/office/health/reports" element={<HealthReports />} />
         <Route path="/office/health/map" element={<HealthMap />} />
         <Route path="/office/health/resolve" element={<HealthResolve />} />
+        <Route path="/office/health/announcements" element={<HealthAnnouncements />} />
+        <Route path="/office/tourism/overview" element={<TourismOverview />} />
+        <Route path="/office/tourism/announcements" element={<TourismAnnouncements />} />
         <Route path="/admin/settings" element={<AdminSettings />} />
       </Routes>
     </BrowserRouter>

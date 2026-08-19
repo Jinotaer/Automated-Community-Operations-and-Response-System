@@ -1,92 +1,13 @@
 import { useEffect, useState } from "react";
 import { MapPin, Clock3, ArrowUpRight, X, Check } from "lucide-react";
 import CitizenLayout from "../Layouts/CitizenLayouts";
-
-const filters = ["All", "New", "Pending", "In Progress", "Resolved"];
+import potholeImg from "../assets/pothole.jpg";
+import streetlightImg from "../assets/light.jpg";
+import outageImg from "../assets/outage.jpg";
+import highwayImg from "../assets/national-highway.jpg";
+import garbageAccImg from "../assets/garbage-acc.jpg";
 
 const communityUpdates = [
-  {
-    id: "COMM-001",
-    title: "Pothole reported near the main road",
-    location: "Barangay 5, near the main road",
-    status: "Pending Review",
-    badge: "New",
-    badgeColor: "bg-red-100 text-red-600",
-    dotColor: "bg-orange-500",
-    category: "Road Damage",
-    reportedAt: "Today, 9:20 AM",
-    description:
-      "A pothole has formed along the main road in Barangay 5, forcing vehicles to swerve around it. Residents are concerned it will deepen further once the rains come.",
-    timeline: [
-      { label: "Report submitted", time: "Today, 9:20 AM" },
-      { label: "Received by City Hall", time: "Today, 9:35 AM" },
-      { label: "Under LGU review", time: "" },
-    ],
-    image:
-      "https://images.unsplash.com/photo-1594230614807-2f2791c1bb7b?q=80&w=400&auto=format&fit=crop",
-  },
-  {
-    id: "COMM-002",
-    title: "Streetlight outage near Fortich Street",
-    location: "Fortich St, Zone 3",
-    status: "Technician Dispatched",
-    badge: "2h ago",
-    badgeColor: "bg-gray-100 text-gray-600",
-    dotColor: "bg-red-600",
-    category: "Streetlights",
-    reportedAt: "Today, 7:05 AM",
-    description:
-      "The streetlight along Fortich Street has been out since last night, leaving the stretch of road dark for pedestrians and passing vehicles.",
-    timeline: [
-      { label: "Report submitted", time: "Today, 7:05 AM" },
-      { label: "Received by City Hall", time: "Today, 7:12 AM" },
-      { label: "Assigned to City Engineering", time: "Today, 8:40 AM" },
-      { label: "Technician dispatched", time: "" },
-    ],
-    image:
-      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=400&auto=format&fit=crop",
-  },
-  {
-    id: "COMM-003",
-    title: "Drainage blockage beside the public market",
-    location: "Poblacion Public Market",
-    status: "Under Review",
-    badge: "4h ago",
-    badgeColor: "bg-blue-100 text-blue-700",
-    dotColor: "bg-blue-500",
-    category: "Drainage",
-    reportedAt: "Today, 5:40 AM",
-    description:
-      "Blocked drainage beside the public market is pooling water along the walkway, especially after the early morning rain. Vendors report standing water at stall entrances.",
-    timeline: [
-      { label: "Report submitted", time: "Today, 5:40 AM" },
-      { label: "Received by City Hall", time: "Today, 5:55 AM" },
-      { label: "Under LGU review", time: "" },
-    ],
-    image:
-      "https://images.unsplash.com/photo-1527482797697-8795b05a13fe?q=80&w=400&auto=format&fit=crop",
-  },
-  {
-    id: "COMM-004",
-    title: "Garbage accumulation near the riverbank",
-    location: "Sawaga River, Sumpong",
-    status: "Cleanup Scheduled",
-    badge: "Yesterday",
-    badgeColor: "bg-yellow-100 text-yellow-700",
-    dotColor: "bg-yellow-500",
-    category: "Garbage",
-    reportedAt: "June 8, 2026",
-    description:
-      "Garbage has been accumulating along the riverbank in Sumpong, with nearby households reporting a strong odor. The City Environment Office has scheduled a cleanup.",
-    timeline: [
-      { label: "Report submitted", time: "June 8, 2026" },
-      { label: "Received by City Hall", time: "June 8, 2026" },
-      { label: "Assigned to City Environment Office", time: "June 9, 2026" },
-      { label: "Cleanup scheduled", time: "" },
-    ],
-    image:
-      "https://images.unsplash.com/photo-1604187351574-c75ca79f5807?q=80&w=400&auto=format&fit=crop",
-  },
   {
     id: "COMM-005",
     title: "Water leakage along the national road",
@@ -109,16 +30,115 @@ const communityUpdates = [
     image:
       "https://images.unsplash.com/photo-1541919329513-35f7af297129?q=80&w=400&auto=format&fit=crop",
   },
+  {
+    id: "COMM-006",
+    title: "Pothole repaired along Dalwangan road",
+    location: "Dalwangan, along the barangay road",
+    status: "Resolved",
+    badge: "Resolved",
+    badgeColor: "bg-red-100 text-red-600",
+    dotColor: "bg-red-600",
+    category: "Road Damage",
+    reportedAt: "June 5, 2026",
+    description:
+      "The pothole along the Dalwangan barangay road has been patched and compacted by the City Engineering Office. The area is safe again for vehicles and motorcycles.",
+    timeline: [
+      { label: "Report submitted", time: "June 5, 2026" },
+      { label: "Received by City Hall", time: "June 5, 2026" },
+      { label: "Assigned to City Engineering", time: "June 6, 2026" },
+      { label: "Repairs completed", time: "June 9, 2026" },
+      { label: "Marked resolved", time: "June 10, 2026" },
+    ],
+    image: potholeImg,
+  },
+  {
+    id: "COMM-007",
+    title: "Streetlight restored on Fortich Street",
+    location: "Fortich St, Zone 3",
+    status: "Resolved",
+    badge: "Resolved",
+    badgeColor: "bg-red-100 text-red-600",
+    dotColor: "bg-red-600",
+    category: "Streetlights",
+    reportedAt: "June 4, 2026",
+    description:
+      "The faulty streetlight on Fortich Street was replaced and the stretch is fully lit again. Residents report no further issues along the walkway.",
+    timeline: [
+      { label: "Report submitted", time: "June 4, 2026" },
+      { label: "Received by City Hall", time: "June 4, 2026" },
+      { label: "Technician dispatched", time: "June 5, 2026" },
+      { label: "Repairs completed", time: "June 8, 2026" },
+      { label: "Marked resolved", time: "June 8, 2026" },
+    ],
+    image: streetlightImg,
+  },
+  {
+    id: "COMM-008",
+    title: "Streetlight outage fixed in Zone 2",
+    location: "Zone 2, corner of the market road",
+    status: "Resolved",
+    badge: "Resolved",
+    badgeColor: "bg-red-100 text-red-600",
+    dotColor: "bg-red-600",
+    category: "Streetlights",
+    reportedAt: "June 2, 2026",
+    description:
+      "The darkened corner in Zone 2 near the market road has been restored. The wiring fault was traced and corrected by the maintenance crew.",
+    timeline: [
+      { label: "Report submitted", time: "June 2, 2026" },
+      { label: "Received by City Hall", time: "June 2, 2026" },
+      { label: "Technician dispatched", time: "June 3, 2026" },
+      { label: "Repairs completed", time: "June 5, 2026" },
+      { label: "Marked resolved", time: "June 6, 2026" },
+    ],
+    image: outageImg,
+  },
+  {
+    id: "COMM-009",
+    title: "Re-blocking completed along Sayre Highway",
+    location: "Sayre Highway, Sumpong",
+    status: "Resolved",
+    badge: "Resolved",
+    badgeColor: "bg-red-100 text-red-600",
+    dotColor: "bg-red-600",
+    category: "Road Damage",
+    reportedAt: "May 28, 2026",
+    description:
+      "The damaged stretch along Sayre Highway in Sumpong was re-blocked and re-asphalted. The road is now level and safe for all vehicles.",
+    timeline: [
+      { label: "Report submitted", time: "May 28, 2026" },
+      { label: "Received by City Hall", time: "May 28, 2026" },
+      { label: "Assigned to City Engineering", time: "May 29, 2026" },
+      { label: "Repairs completed", time: "June 2, 2026" },
+      { label: "Marked resolved", time: "June 3, 2026" },
+    ],
+    image: highwayImg,
+  },
+  {
+    id: "COMM-010",
+    title: "Garbage cleared at the riverbank",
+    location: "Sawaga River, Sumpong",
+    status: "Resolved",
+    badge: "Resolved",
+    badgeColor: "bg-red-100 text-red-600",
+    dotColor: "bg-red-600",
+    category: "Garbage",
+    reportedAt: "May 25, 2026",
+    description:
+      "The accumulated garbage along the Sawaga River was collected and hauled by the City Environment Office. The riverbank has been cleared and the area sanitized.",
+    timeline: [
+      { label: "Report submitted", time: "May 25, 2026" },
+      { label: "Received by City Hall", time: "May 25, 2026" },
+      { label: "Assigned to City Environment Office", time: "May 26, 2026" },
+      { label: "Cleanup completed", time: "May 29, 2026" },
+      { label: "Marked resolved", time: "May 30, 2026" },
+    ],
+    image: garbageAccImg,
+  },
 ];
 
 export default function CommunityUpdates() {
-  const [activeFilter, setActiveFilter] = useState("All");
   const [selectedUpdate, setSelectedUpdate] = useState(null);
-
-  const filteredUpdates =
-    activeFilter === "All"
-      ? communityUpdates
-      : communityUpdates.filter((u) => u.badge === activeFilter);
 
   return (
     <CitizenLayout hideNavigation={Boolean(selectedUpdate)}>
@@ -128,31 +148,13 @@ export default function CommunityUpdates() {
             Community Updates
           </h1>
           <p className="mt-1 text-sm text-gray-500">
-            See public reports and the latest city response activity.
+            See resolved complaints and the completed city response activity.
           </p>
         </section>
 
-        <section className="px-5 pt-4">
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            {filters.map((filter) => (
-              <button
-                key={filter}
-                onClick={() => setActiveFilter(filter)}
-                className={`shrink-0 rounded-full px-4 py-2 text-xs font-bold transition-colors ${
-                  activeFilter === filter
-                    ? "bg-red-600 text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-600"
-                }`}
-              >
-                {filter}
-              </button>
-            ))}
-          </div>
-        </section>
-
-        <section className="space-y-4 px-5 pb-24 pt-2">
-          {filteredUpdates.length > 0 ? (
-            filteredUpdates.map((update) => (
+        <section className="space-y-4 px-5 pb-24 pt-4">
+          {communityUpdates.length > 0 ? (
+            communityUpdates.map((update) => (
               <MobileCommunityUpdateCard
                 key={update.id}
                 update={update}
@@ -161,52 +163,34 @@ export default function CommunityUpdates() {
             ))
           ) : (
             <p className="py-10 text-center text-sm text-gray-400">
-              No updates found for &ldquo;{activeFilter}&rdquo;.
+              No resolved complaints yet.
             </p>
           )}
         </section>
       </div>
 
       <div className="hidden lg:block">
-        <header className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-extrabold text-gray-900">
-              Community Updates
-            </h1>
-            <p className="mt-1 text-gray-500">
-              Public citizen reports and visible response updates across
-              Malaybalay City.
-            </p>
-          </div>
-
-          <div className="flex gap-2">
-            {filters.map((filter) => (
-              <button
-                key={filter}
-                onClick={() => setActiveFilter(filter)}
-                className={`rounded-full px-5 py-2 text-sm font-bold transition-colors ${
-                  activeFilter === filter
-                    ? "bg-red-600 text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-600"
-                }`}
-              >
-                {filter}
-              </button>
-            ))}
-          </div>
+        <header>
+          <h1 className="text-3xl font-extrabold text-gray-900">
+            Community Updates
+          </h1>
+          <p className="mt-1 text-gray-500">
+            Resolved citizen complaints and completed response updates across
+            Malaybalay City.
+          </p>
         </header>
 
         <section className="mt-8 grid grid-cols-4 gap-6">
           <SummaryCard title="Public Reports" value="128" color="text-red-600" />
-          <SummaryCard title="New Today" value="14" color="text-blue-600" />
-          <SummaryCard title="In Review" value="29" color="text-yellow-600" />
           <SummaryCard title="Resolved" value="85" color="text-red-600" />
+          <SummaryCard title="Resolved This Month" value="31" color="text-blue-600" />
+          <SummaryCard title="Resolved This Week" value="6" color="text-green-600" />
         </section>
 
         <section className="mt-8 rounded-3xl bg-white p-6 shadow-sm">
           <div className="grid gap-4">
-            {filteredUpdates.length > 0 ? (
-              filteredUpdates.map((update) => (
+            {communityUpdates.length > 0 ? (
+              communityUpdates.map((update) => (
                 <DesktopCommunityUpdateCard
                   key={update.id}
                   update={update}
@@ -215,7 +199,7 @@ export default function CommunityUpdates() {
               ))
             ) : (
               <p className="py-10 text-center text-sm text-gray-400">
-                No updates found for &ldquo;{activeFilter}&rdquo;.
+                No resolved complaints yet.
               </p>
             )}
           </div>

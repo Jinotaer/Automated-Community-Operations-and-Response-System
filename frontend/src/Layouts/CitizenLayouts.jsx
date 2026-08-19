@@ -1,11 +1,15 @@
 // src/layouts/CitizenLayout.jsx
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { Home, ClipboardList, Map, User, Plus, Bell } from "lucide-react";
+import { Home, ClipboardList, ScrollText, User, Plus, Bell } from "lucide-react";
 import ApplicationLogo from "../Components/ApplicationLogo";
 import ValorLogo from "@/assets/acors.png";
 
-export default function CitizenLayout({ children, hideNavigation = false }) {
+export default function CitizenLayout({
+  children,
+  hideNavigation = false,
+  hideHeader = false,
+}) {
   const [notificationOpen, setNotificationOpen] = useState(false);
 
   const notifications = [
@@ -34,7 +38,8 @@ export default function CitizenLayout({ children, hideNavigation = false }) {
       {/* Mobile Layout Wrapper */}
       <div className="mx-auto min-h-screen max-w-md overflow-hidden bg-white shadow-xl lg:hidden">
         {/* Mobile Header */}
-        <header className="flex items-center justify-between px-5 pt-5">
+        {!hideHeader && (
+          <header className="flex items-center justify-between px-5 pt-5">
           {/* <button className="rounded-lg p-2 hover:bg-gray-100">
             <Menu size={22} />
           </button> */}
@@ -101,6 +106,7 @@ export default function CitizenLayout({ children, hideNavigation = false }) {
             )}
           </div>
         </header>
+        )}
 
         {/* Page Content */}
         <main className="pb-28">{children}</main>
@@ -131,7 +137,11 @@ export default function CitizenLayout({ children, hideNavigation = false }) {
               </NavLink>
             </div>
 
-            <MobileNavItem to="/map" icon={<Map size={20} />} label="Map" />
+            <MobileNavItem
+              to="/request-certificate"
+              icon={<ScrollText size={20} />}
+              label="Certificate"
+            />
             <MobileNavItem
               to="/profile"
               icon={<User size={20} />}
@@ -170,9 +180,9 @@ export default function CitizenLayout({ children, hideNavigation = false }) {
               label="My Reports"
             />
             <DesktopNavItem
-              to="/map"
-              icon={<Map size={20} />}
-              label="Incident Map"
+              to="/request-certificate"
+              icon={<ScrollText size={20} />}
+              label="Request Certificate"
             />
             <DesktopNavItem
               to="/profile"

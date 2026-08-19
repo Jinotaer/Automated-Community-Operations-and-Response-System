@@ -13,6 +13,7 @@ import {
   Bell,
   Info,
   ArrowLeft,
+  Megaphone,
 } from "lucide-react";
 import ApplicationLogo from "../Components/ApplicationLogo";
 import ValorLogo from "@/assets/acors.png";
@@ -50,9 +51,16 @@ export default function OfficeLayout({ office, header, children }) {
 
   const navigation = [
     { name: "Overview", href: `/office/${office.slug}/overview`, icon: LayoutDashboard },
-    { name: "Reports", href: `/office/${office.slug}/reports`, icon: ClipboardList },
-    { name: "Map", href: `/office/${office.slug}/map`, icon: Map },
-    { name: "Resolve", href: `/office/${office.slug}/resolve`, icon: CheckCircle2 },
+    ...(office.slug === "tourism"
+      ? []
+      : [
+          { name: "Reports", href: `/office/${office.slug}/reports`, icon: ClipboardList },
+          { name: "Map", href: `/office/${office.slug}/map`, icon: Map },
+          { name: "Resolve", href: `/office/${office.slug}/resolve`, icon: CheckCircle2 },
+        ]),
+    ...(office.slug === "health" || office.slug === "tourism"
+      ? [{ name: "Announcements", href: `/office/${office.slug}/announcements`, icon: Megaphone }]
+      : []),
   ];
 
   return (

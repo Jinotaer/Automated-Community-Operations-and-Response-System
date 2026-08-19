@@ -18,10 +18,27 @@ import {
   Loader,
 } from "lucide-react";
 import CitizenLayout from "../Layouts/CitizenLayouts";
+import { offices } from "../Offices/officeData";
 import { uploadToCloudinary } from "../services/cloudinaryApi";
 import { callDraftReport } from "../services/reportApi";
 import { getMockGPSLocation } from "../services/gps";
 import garbageSampleImg from "../assets/garbage-sample.jpg";
+
+const departmentOptions = Object.values(offices)
+  .filter((office) => office.slug !== "tourism")
+  .map((office) => office.name);
+
+function normalizeDepartment(value) {
+  if (!value) return value;
+  const match = Object.values(offices)
+    .filter((office) => office.slug !== "tourism")
+    .find(
+    (office) =>
+      office.name.toLowerCase() === value.toLowerCase() ||
+      office.shortName.toLowerCase() === value.toLowerCase()
+  );
+  return match ? match.name : value;
+}
 
 const mockSampleResult = {
   title: "Illegal garbage dumping along the roadside",
@@ -82,7 +99,7 @@ export default function ReportIssue() {
           description: mockSampleResult.description,
           category: mockSampleResult.category,
           priority: mockSampleResult.priority,
-          department: mockSampleResult.department,
+          department: normalizeDepartment(mockSampleResult.department),
           confidence: mockSampleResult.confidence,
           location: `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`,
         };
@@ -125,7 +142,7 @@ export default function ReportIssue() {
         description: aiResponse.data.description,
         category: aiResponse.data.category,
         priority: aiResponse.data.priority,
-        department: aiResponse.data.department,
+        department: normalizeDepartment(aiResponse.data.department),
         confidence: aiResponse.data.confidence,
         location: `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`,
       };
@@ -477,13 +494,7 @@ function AIReviewStep({
             value={formData.department || aiResult.department}
             onChange={(val) => handleChange("department", val)}
             isSelect
-            options={[
-              "Engineering Office",
-              "CENRO",
-              "Disaster Risk Reduction",
-              "Water District",
-              "Public Safety",
-            ]}
+            options={departmentOptions}
           />
         </form>
 

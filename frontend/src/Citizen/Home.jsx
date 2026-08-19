@@ -6,9 +6,11 @@ import {
   Map,
   MapPin,
   Navigation,
+  Megaphone,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import CitizenLayout from "../Layouts/CitizenLayouts";
+import { getAnnouncements } from "../services/announcements";
 import cityOverview from "../assets/bg.jpg";
 import digitalReport from "../assets/image.png";
 import lguResponse from "../assets/national-highway.jpg";
@@ -59,6 +61,29 @@ export default function Home() {
 
         <section className="px-5 pt-6">
           <NearbyIncidentsCard />
+        </section>
+
+        <section className="px-5 pt-6">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-extrabold text-gray-900">
+              Announcements
+            </h3>
+
+            <Link
+              to="/announcements"
+              className="text-sm font-bold text-red-600"
+            >
+              View all
+            </Link>
+          </div>
+
+          <div className="mt-4 space-y-4">
+            {getAnnouncements()
+              .slice(0, 2)
+              .map((post) => (
+                <HomeAnnouncementCard key={post.id} post={post} />
+              ))}
+          </div>
         </section>
 
         <section className="px-5 pt-6 pb-24">
@@ -207,6 +232,32 @@ export default function Home() {
                 dotColor="bg-red-600"
               />
             </div>
+          </div>
+        </section>
+
+        <section className="mt-6 rounded-3xl bg-white p-6 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-xl font-bold">Announcements</h3>
+              <p className="text-sm text-gray-500">
+                Official posts from city offices.
+              </p>
+            </div>
+
+            <Link
+              to="/announcements"
+              className="text-sm font-semibold text-red-600"
+            >
+              View all
+            </Link>
+          </div>
+
+          <div className="mt-5 grid gap-4">
+            {getAnnouncements()
+              .slice(0, 2)
+              .map((post) => (
+                <HomeAnnouncementCard key={post.id} post={post} />
+              ))}
           </div>
         </section>
       </div>
@@ -554,6 +605,44 @@ function NearbyIncidentsCard({ desktop = false }) {
         </Link>
       </div>
     </div>
+  );
+}
+
+function HomeAnnouncementCard({ post }) {
+  return (
+    <Link
+      to="/announcements"
+      className="flex items-center gap-4 rounded-2xl bg-white p-4 shadow-sm transition hover:scale-[1.01]"
+    >
+      <img
+        src={post.image}
+        alt={post.officeName}
+        className="h-20 w-20 shrink-0 rounded-xl object-cover"
+      />
+
+      <div className="min-w-0 flex-1">
+        <div className="flex items-start justify-between gap-3">
+          <h4 className="line-clamp-1 text-base font-extrabold text-gray-900">
+            {post.officeName}
+          </h4>
+
+          <span className="shrink-0 rounded-full bg-red-50 px-3 py-1 text-[10px] font-bold text-red-600">
+            OFFICIAL
+          </span>
+        </div>
+
+        <p className="mt-1 line-clamp-2 text-sm font-medium leading-5 text-gray-700">
+          {post.caption}
+        </p>
+
+        <div className="mt-2 flex items-center gap-2">
+          <Megaphone size={12} className="text-red-600" />
+          <p className="text-[11px] font-medium text-gray-500">
+            {post.postedAt}
+          </p>
+        </div>
+      </div>
+    </Link>
   );
 }
 

@@ -239,16 +239,10 @@ export default function Login() {
             <p className="mt-8 text-center text-sm text-zinc-500">
               New to ACORS?{" "}
               <Link
-                to="/home"
+                to="/register"
                 className="font-semibold text-red-600 hover:text-red-700"
               >
                 Create an account
-              </Link>
-            </p>
-
-            <p className="mt-3 text-center text-sm text-zinc-500">
-              <Link to="/home" className="font-semibold text-zinc-400 hover:text-zinc-600">
-                Continue as guest
               </Link>
             </p>
           </div>

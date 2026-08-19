@@ -1,5 +1,5 @@
 // src/Offices/officeData.js
-import { Wrench, Leaf, ShieldCheck, TrafficCone, HeartPulse } from "lucide-react";
+import { Wrench, Leaf, ShieldCheck, TrafficCone, HeartPulse, Landmark } from "lucide-react";
 
 const engineeringOffice = {
   slug: "engineering",
@@ -796,12 +796,44 @@ const healthOffice = {
   ],
 };
 
+const tourismOffice = {
+  slug: "tourism",
+  code: "DEPT-005",
+  name: "City Tourism Office",
+  shortName: "Tourism",
+  holder: "Liza Fernandez",
+  email: "tourism@malaybalay.gov.ph",
+  role: "Office Admin",
+  icon: Landmark,
+  stats: [
+    { title: "Assigned to Office", value: "0", note: "No routed reports" },
+    { title: "In Progress", value: "0", note: "No routed reports" },
+    { title: "Resolved", value: "0", note: "No routed reports" },
+    { title: "Critical", value: "0", note: "No routed reports" },
+    { title: "Avg. Response", value: "—", note: "Announcements only" },
+  ],
+  categories: ["Tourism Events", "Travel Advisories", "City Landmarks", "Promotions"],
+  categoryBreakdown: [],
+  problemAreas: [],
+  priorityBreakdown: [],
+  recentReports: [],
+  incidents: [],
+};
+
 export const offices = {
   engineering: engineeringOffice,
   cenro: cenroOffice,
   cdrrmo: cdrrmoOffice,
   traffic: trafficOffice,
   health: healthOffice,
+  tourism: tourismOffice,
 };
 
-export { engineeringOffice, cenroOffice, cdrrmoOffice, trafficOffice, healthOffice };
+export {
+  engineeringOffice,
+  cenroOffice,
+  cdrrmoOffice,
+  trafficOffice,
+  healthOffice,
+  tourismOffice,
+};
