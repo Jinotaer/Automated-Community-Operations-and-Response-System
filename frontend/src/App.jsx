@@ -79,7 +79,8 @@ function App() {
         <Route path="/report-issue" element={<ReportIssue />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/office/login" element={<OfficeLogin />} />
+        <Route path="/office/login" element={<Navigate to="/department/login" replace />} />
+        <Route path="/department/login" element={<OfficeLogin />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/overview" element={<Overview />} />
         <Route path="/admin/profile" element={<AdminProfile />} />
@@ -88,46 +89,46 @@ function App() {
         <Route path="/admin/barangays" element={<Barangays />} />
         <Route path="/admin/departments" element={<Departments />} />
         <Route path="/admin/users" element={<Users />} />
-        <Route path="/office/engineering/overview" element={<EngineeringOverview />} />
-        <Route path="/office/engineering/reports" element={<EngineeringReports />} />
-        <Route path="/office/engineering/map" element={<EngineeringMap />} />
-        <Route path="/office/engineering/resolve" element={<EngineeringResolve />} />
-        <Route path="/office/cenro/overview" element={<CenroOverview />} />
-        <Route path="/office/cenro/reports" element={<CenroReports />} />
-        <Route path="/office/cenro/map" element={<CenroMap />} />
-        <Route path="/office/cenro/resolve" element={<CenroResolve />} />
-        <Route path="/office/cdrrmo/overview" element={<CdrrmoOverview />} />
-        <Route path="/office/cdrrmo/reports" element={<CdrrmoReports />} />
-        <Route path="/office/cdrrmo/map" element={<CdrrmoMap />} />
-        <Route path="/office/cdrrmo/resolve" element={<CdrrmoResolve />} />
-        <Route path="/office/traffic/overview" element={<TrafficOverview />} />
-        <Route path="/office/traffic/reports" element={<TrafficReports />} />
-        <Route path="/office/traffic/map" element={<TrafficMap />} />
-        <Route path="/office/traffic/resolve" element={<TrafficResolve />} />
-        <Route path="/office/health/overview" element={<HealthOverview />} />
-        <Route path="/office/health/reports" element={<HealthReports />} />
-        <Route path="/office/health/map" element={<HealthMap />} />
-        <Route path="/office/health/resolve" element={<HealthResolve />} />
-        <Route path="/office/health/announcements" element={<HealthAnnouncements />} />
-        <Route path="/office/tourism/overview" element={<TourismOverview />} />
-        <Route path="/office/tourism/announcements" element={<TourismAnnouncements />} />
-        <Route path="/office/lcro/overview" element={<LCROOverview />} />
-        <Route path="/office/lcro/requests" element={<LCRORequests />} />
-        <Route path="/office/treasurer/overview" element={<CTOOverview />} />
-        <Route path="/office/treasurer/requests" element={<CTORequests />} />
-        <Route path="/office/pdao/overview" element={<PDAOOverview />} />
-        <Route path="/office/pdao/requests" element={<PDAORequests />} />
-        <Route path="/office/soloparent/overview" element={<CSWDOOverview />} />
-        <Route path="/office/soloparent/requests" element={<CSWDORequests />} />
-        <Route path="/office/cswdo/overview" element={<CSWDOOverview />} />
-        <Route path="/office/cswdo/requests" element={<CSWDORequests />} />
-        <Route path="/office/bplo/overview" element={<BPLOOverview />} />
-        <Route path="/office/bplo/requests" element={<BPLORequests />} />
-        <Route path="/office/osca/overview" element={<OSCAOverview />} />
-        <Route path="/office/osca/requests" element={<OSCARequests />} />
-        <Route path="/office/assessor/overview" element={<AssessorOverview />} />
-        <Route path="/office/assessor/requests" element={<AssessorRequests />} />
-        <Route path="/office/:officeSlug/profile" element={<OfficeProfile />} />
+        <Route path="/department/engineering/overview" element={<EngineeringOverview />} />
+        <Route path="/department/engineering/reports" element={<EngineeringReports />} />
+        <Route path="/department/engineering/map" element={<EngineeringMap />} />
+        <Route path="/department/engineering/resolve" element={<EngineeringResolve />} />
+        <Route path="/department/cenro/overview" element={<CenroOverview />} />
+        <Route path="/department/cenro/reports" element={<CenroReports />} />
+        <Route path="/department/cenro/map" element={<CenroMap />} />
+        <Route path="/department/cenro/resolve" element={<CenroResolve />} />
+        <Route path="/department/cdrrmo/overview" element={<CdrrmoOverview />} />
+        <Route path="/department/cdrrmo/reports" element={<CdrrmoReports />} />
+        <Route path="/department/cdrrmo/map" element={<CdrrmoMap />} />
+        <Route path="/department/cdrrmo/resolve" element={<CdrrmoResolve />} />
+        <Route path="/department/traffic/overview" element={<TrafficOverview />} />
+        <Route path="/department/traffic/reports" element={<TrafficReports />} />
+        <Route path="/department/traffic/map" element={<TrafficMap />} />
+        <Route path="/department/traffic/resolve" element={<TrafficResolve />} />
+        <Route path="/department/health/overview" element={<HealthOverview />} />
+        <Route path="/department/health/reports" element={<HealthReports />} />
+        <Route path="/department/health/map" element={<HealthMap />} />
+        <Route path="/department/health/resolve" element={<HealthResolve />} />
+        <Route path="/department/health/announcements" element={<HealthAnnouncements />} />
+        <Route path="/department/tourism/overview" element={<TourismOverview />} />
+        <Route path="/department/tourism/announcements" element={<TourismAnnouncements />} />
+        <Route path="/department/lcro/overview" element={<LCROOverview />} />
+        <Route path="/department/lcro/requests" element={<LCRORequests />} />
+        <Route path="/department/treasurer/overview" element={<CTOOverview />} />
+        <Route path="/department/treasurer/requests" element={<CTORequests />} />
+        <Route path="/department/pdao/overview" element={<PDAOOverview />} />
+        <Route path="/department/pdao/requests" element={<PDAORequests />} />
+        <Route path="/department/soloparent/overview" element={<CSWDOOverview />} />
+        <Route path="/department/soloparent/requests" element={<CSWDORequests />} />
+        <Route path="/department/cswdo/overview" element={<CSWDOOverview />} />
+        <Route path="/department/cswdo/requests" element={<CSWDORequests />} />
+        <Route path="/department/bplo/overview" element={<BPLOOverview />} />
+        <Route path="/department/bplo/requests" element={<BPLORequests />} />
+        <Route path="/department/osca/overview" element={<OSCAOverview />} />
+        <Route path="/department/osca/requests" element={<OSCARequests />} />
+        <Route path="/department/assessor/overview" element={<AssessorOverview />} />
+        <Route path="/department/assessor/requests" element={<AssessorRequests />} />
+        <Route path="/department/:officeSlug/profile" element={<OfficeProfile />} />
         <Route path="/admin/settings" element={<AdminSettings />} />
       </Routes>
     </BrowserRouter>

@@ -271,8 +271,8 @@ export default function Login() {
             </p>
 
             <p className="mt-3 text-center text-sm text-zinc-500">
-              <Link to="/office/login" className="font-semibold text-zinc-400 hover:text-zinc-600">
-                Office personnel? Use the office portal
+              <Link to="/department/login" className="font-semibold text-zinc-400 hover:text-zinc-600">
+                Department personnel? Use the department portal
               </Link>
             </p>
           </div>

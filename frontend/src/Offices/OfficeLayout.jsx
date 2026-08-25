@@ -51,7 +51,7 @@ export default function OfficeLayout({ office, header, children }) {
   const handleLogout = () => {
     localStorage.removeItem("acors_office_session");
     sessionStorage.clear();
-    navigate("/office/login");
+    navigate("/department/login");
   };
 
   const OfficeIcon = office.icon;
@@ -59,7 +59,7 @@ export default function OfficeLayout({ office, header, children }) {
   const navigation = [
     {
       name: "Overview",
-      href: `/office/${office.slug}/overview`,
+      href: `/department/${office.slug}/overview`,
       icon: LayoutDashboard,
     },
     ...(office.slug === "tourism" ||
@@ -75,13 +75,13 @@ export default function OfficeLayout({ office, header, children }) {
       : [
           {
             name: "Reports",
-            href: `/office/${office.slug}/reports`,
+            href: `/department/${office.slug}/reports`,
             icon: ClipboardList,
           },
-          { name: "Map", href: `/office/${office.slug}/map`, icon: Map },
+          { name: "Map", href: `/department/${office.slug}/map`, icon: Map },
           {
             name: "Resolve",
-            href: `/office/${office.slug}/resolve`,
+            href: `/department/${office.slug}/resolve`,
             icon: CheckCircle2,
           },
         ]),
@@ -96,7 +96,7 @@ export default function OfficeLayout({ office, header, children }) {
       ? [
           {
             name: "Applications & Requests",
-            href: `/office/${office.slug}/requests`,
+            href: `/department/${office.slug}/requests`,
             icon: FileText,
           },
         ]
@@ -105,7 +105,7 @@ export default function OfficeLayout({ office, header, children }) {
       ? [
           {
             name: "Announcements",
-            href: `/office/${office.slug}/announcements`,
+            href: `/department/${office.slug}/announcements`,
             icon: Megaphone,
           },
         ]
@@ -179,7 +179,7 @@ export default function OfficeLayout({ office, header, children }) {
             </div>
 
             <Link
-              to={`/office/${office.slug}/profile`}
+              to={`/department/${office.slug}/profile`}
               className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-3 text-zinc-800 transition hover:border-red-200 hover:bg-red-50/40 active:scale-[0.99]"
             >
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white ring-1 ring-zinc-200">
@@ -319,7 +319,7 @@ export default function OfficeLayout({ office, header, children }) {
                 {userMenuOpen && (
                   <div className="absolute right-0 mt-2 w-56 overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xl animate-modal-in z-50">
                     <Link
-                      to={`/office/${office.slug}/profile`}
+                      to={`/department/${office.slug}/profile`}
                       onClick={() => setUserMenuOpen(false)}
                       className="block border-b border-zinc-100 px-4 py-3 text-left transition hover:bg-red-50/50 group"
                     >

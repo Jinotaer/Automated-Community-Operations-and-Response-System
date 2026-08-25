@@ -188,21 +188,21 @@ export default function OfficeProfile() {
 
               <div className="mt-5 flex flex-wrap gap-2 pt-3 border-t border-zinc-100">
                 <Link
-                  to={`/office/${office.slug}/overview`}
+                  to={`/department/${office.slug}/overview`}
                   className="flex items-center gap-1.5 rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-xs font-bold text-gray-700 shadow-2xs hover:bg-zinc-50"
                 >
                   <Building2 size={14} /> Open Overview <ArrowRight size={13} />
                 </Link>
                 {office.slug === "lcro" || office.slug === "treasurer" || office.slug === "pdao" || office.slug === "soloparent" || office.slug === "cswdo" || office.slug === "bplo" || office.slug === "osca" || office.slug === "assessor" ? (
                   <Link
-                    to={`/office/${office.slug}/requests`}
+                    to={`/department/${office.slug}/requests`}
                     className="flex items-center gap-1.5 rounded-xl bg-red-600 px-3.5 py-2 text-xs font-bold text-white shadow-2xs hover:bg-red-700"
                   >
                     <FileText size={14} /> View Applications Console <ArrowRight size={13} />
                   </Link>
                 ) : (
                   <Link
-                    to={`/office/${office.slug}/reports`}
+                    to={`/department/${office.slug}/reports`}
                     className="flex items-center gap-1.5 rounded-xl bg-red-600 px-3.5 py-2 text-xs font-bold text-white shadow-2xs hover:bg-red-700"
                   >
                     <FileText size={14} /> View Reports Console <ArrowRight size={13} />

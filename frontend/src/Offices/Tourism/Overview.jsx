@@ -74,7 +74,7 @@ export default function Overview() {
           </div>
 
           <Link
-            to="/office/tourism/announcements"
+            to="/department/tourism/announcements"
             className="flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition duration-300 hover:bg-red-700 active:translate-y-px"
           >
             <Plus size={16} />
@@ -108,7 +108,7 @@ export default function Overview() {
             </p>
 
             <Link
-              to="/office/tourism/announcements"
+              to="/department/tourism/announcements"
               className="mt-6 inline-flex items-center gap-2 rounded-xl bg-red-600 px-5 py-3 text-sm font-bold text-white shadow-sm transition duration-300 hover:bg-red-500 active:translate-y-px"
             >
               <Megaphone size={16} />
@@ -139,7 +139,7 @@ export default function Overview() {
                 Latest Announcements
               </h2>
               <Link
-                to="/office/tourism/announcements"
+                to="/department/tourism/announcements"
                 className="flex items-center gap-1.5 text-sm font-bold text-red-600 transition hover:text-red-700"
               >
                 Manage posts
@@ -159,7 +159,7 @@ export default function Overview() {
                   Your posts appear here and on the citizen portal feed.
                 </p>
                 <Link
-                  to="/office/tourism/announcements"
+                  to="/department/tourism/announcements"
                   className="mt-5 flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-bold text-white transition duration-300 hover:bg-red-700 active:translate-y-px"
                 >
                   <Plus size={16} />
@@ -215,7 +215,7 @@ export default function Overview() {
                   icon={<Megaphone size={17} />}
                   label="Post an announcement"
                   note={`${posts.length} live on the portal`}
-                  to="/office/tourism/announcements"
+                  to="/department/tourism/announcements"
                 />
                 <QuickAction
                   icon={<Camera size={17} />}

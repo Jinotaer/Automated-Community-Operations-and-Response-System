@@ -156,7 +156,7 @@ export default function OfficeLogin() {
     setFormError("");
     setIsLoading(true);
     window.setTimeout(
-      () => navigate(`/office/${account.officeSlug}/overview`),
+      () => navigate(`/department/${account.officeSlug}/overview`),
       900
     );
   }

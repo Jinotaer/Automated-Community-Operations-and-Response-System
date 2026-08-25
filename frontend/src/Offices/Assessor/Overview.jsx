@@ -65,7 +65,7 @@ export default function AssessorOverview() {
             <button onClick={loadData} className="flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-xs font-bold text-gray-700 shadow-sm transition hover:bg-zinc-50">
               <RefreshCw size={14} /> Refresh
             </button>
-            <Link to="/office/assessor/requests" className="flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-red-700">
+            <Link to="/department/assessor/requests" className="flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-red-700">
               <FileText size={15} /> Open Applications Console
             </Link>
           </div>
@@ -138,7 +138,7 @@ export default function AssessorOverview() {
                 <span className="font-mono text-lg font-bold text-amber-700">{stats.requiresCorrection}</span>
               </div>
             </div>
-            <Link to="/office/assessor/requests" className="mt-6 flex w-full items-center justify-center gap-1.5 rounded-xl border border-zinc-200 py-3 text-xs font-bold text-gray-700 transition hover:bg-zinc-50">
+            <Link to="/department/assessor/requests" className="mt-6 flex w-full items-center justify-center gap-1.5 rounded-xl border border-zinc-200 py-3 text-xs font-bold text-gray-700 transition hover:bg-zinc-50">
               Manage All Property Applications <ArrowUpRight size={14} />
             </Link>
           </div>
@@ -151,7 +151,7 @@ export default function AssessorOverview() {
               <h2 className="text-base font-extrabold text-gray-900 sm:text-lg">Recent Property Assessment Requests</h2>
               <p className="text-xs text-gray-500">Tax declaration and valuation filings in Malaybalay City</p>
             </div>
-            <Link to="/office/assessor/requests" className="text-xs font-bold text-red-600 hover:text-red-700">View Full Table</Link>
+            <Link to="/department/assessor/requests" className="text-xs font-bold text-red-600 hover:text-red-700">View Full Table</Link>
           </div>
           <div className="mt-5 overflow-x-auto">
             <table className="w-full min-w-180 text-left text-xs">

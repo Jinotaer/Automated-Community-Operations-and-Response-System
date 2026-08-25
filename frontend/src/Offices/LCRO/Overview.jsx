@@ -65,7 +65,7 @@ export default function LCROOverview() {
 
           <div className="flex items-center gap-2">
             <Link
-              to="/office/lcro/requests"
+              to="/department/lcro/requests"
               className="flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-red-700 active:translate-y-px"
             >
               <FileText size={15} />
@@ -185,7 +185,7 @@ export default function LCROOverview() {
             </div>
 
             <Link
-              to="/office/lcro/requests"
+              to="/department/lcro/requests"
               className="mt-6 flex w-full items-center justify-center gap-1.5 rounded-xl border border-zinc-200 py-3 text-xs font-bold text-gray-700 transition hover:bg-zinc-50"
             >
               Manage All Requests
@@ -209,7 +209,7 @@ export default function LCROOverview() {
               </p>
             </div>
             <Link
-              to="/office/lcro/requests"
+              to="/department/lcro/requests"
               className="text-xs font-bold text-red-600 hover:text-red-700"
             >
               View Full Table
