@@ -55,6 +55,12 @@ const MOCK_ACCOUNTS = [
     password: "acors2025",
     officeSlug: "tourism",
   },
+  {
+    office: "City Civil Registrar's Office (LCRO)",
+    email: "lcro@malaybalay.gov.ph",
+    password: "acors2025",
+    officeSlug: "lcro",
+  },
 ];
 
 export default function OfficeLogin() {

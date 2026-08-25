@@ -44,6 +44,8 @@ import HealthResolve from "./Offices/Health/Resolve";
 import HealthAnnouncements from "./Offices/Health/Announcements";
 import TourismOverview from "./Offices/Tourism/Overview";
 import TourismAnnouncements from "./Offices/Tourism/Announcements";
+import LCROOverview from "./Offices/LCRO/Overview";
+import LCRORequests from "./Offices/LCRO/Requests";
 
 function App() {
   return (
@@ -96,6 +98,8 @@ function App() {
         <Route path="/office/health/announcements" element={<HealthAnnouncements />} />
         <Route path="/office/tourism/overview" element={<TourismOverview />} />
         <Route path="/office/tourism/announcements" element={<TourismAnnouncements />} />
+        <Route path="/office/lcro/overview" element={<LCROOverview />} />
+        <Route path="/office/lcro/requests" element={<LCRORequests />} />
         <Route path="/admin/settings" element={<AdminSettings />} />
       </Routes>
     </BrowserRouter>

@@ -1,9 +1,11 @@
+// src/Citizen/Reports.jsx
 import { useEffect, useState } from "react";
 import { MapPin, Clock3, X, Check } from "lucide-react";
 import CitizenLayout from "../Layouts/CitizenLayouts";
 import pothole from "../assets/national-highway.jpg";
 import outage from "../assets/outage.jpg";
 import light from "../assets/light.jpg";
+
 const reports = [
   {
     id: "MBY-2024-00123",
@@ -298,145 +300,61 @@ function ReportDetailModal({ report, onClose }) {
       className="fixed inset-0 z-50 flex items-end justify-center bg-zinc-950/60 backdrop-blur-sm animate-fade-in sm:items-center sm:p-6"
     >
       <div
-        role="dialog"
-        aria-modal="true"
-        aria-label={`${report.title} — details`}
-        onClick={(event) => event.stopPropagation()}
-        className="max-h-[92dvh] w-full max-w-lg overflow-y-auto rounded-t-[2rem] bg-white shadow-2xl animate-modal-in sm:rounded-[2rem]"
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-lg rounded-t-3xl bg-white p-6 shadow-2xl sm:rounded-3xl animate-modal-in"
       >
-        <div className="relative h-56 shrink-0 sm:h-64">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <StatusBadge status={report.status} />
+            <span className="font-mono text-xs text-gray-400">#{report.id}</span>
+          </div>
+
+          <button
+            onClick={onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-100 text-gray-400 hover:text-gray-600"
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        <h2 className="mt-3 text-lg font-extrabold text-gray-900">
+          {report.title}
+        </h2>
+
+        <div className="mt-1 flex items-center gap-1 text-xs text-gray-500">
+          <MapPin size={13} />
+          <span>{report.location}</span>
+        </div>
+
+        <p className="mt-3 text-xs leading-5 text-gray-600">
+          {report.description}
+        </p>
+
+        {report.image && (
           <img
             src={report.image}
             alt={report.title}
-            className="h-full w-full object-cover"
+            className="mt-4 h-44 w-full rounded-2xl object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/75 via-zinc-950/10 to-transparent" />
-
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close report details"
-            className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-zinc-700 shadow-md transition hover:bg-white hover:text-zinc-900"
-          >
-            <X size={18} />
-          </button>
-
-          <div className="absolute bottom-4 left-5 right-5">
-            <StatusBadge status={report.status} />
-            <h2 className="mt-2 text-2xl font-extrabold leading-tight text-white">
-              {report.title}
-            </h2>
-          </div>
-        </div>
-
-        <div className="p-6">
-          <div className="flex items-center justify-between">
-            <p className="text-xs font-semibold text-gray-400">
-              Reference: #{report.id}
-            </p>
-            <p className="text-xs font-semibold text-gray-400">
-              Updated {report.updated}
-            </p>
-          </div>
-
-          <div className="mt-5 grid grid-cols-1 gap-3 rounded-2xl bg-gray-50 p-4 sm:grid-cols-2">
-            <MetaItem
-              icon={<MapPin size={15} />}
-              label="Location"
-              value={report.location}
-            />
-            <MetaItem icon={<Clock3 size={15} />} label="Category" value={report.category} />
-            <MetaItem label="Report type" value="Citizen report" />
-            <MetaItem label="Status" value={report.status} />
-          </div>
-
-          <p className="mt-5 text-sm leading-6 text-gray-600">
-            {report.description}
-          </p>
-
-          <div className="mt-6">
-            <h3 className="text-sm font-extrabold uppercase tracking-wider text-gray-400">
-              Response Timeline
-            </h3>
-            <div className="mt-4 space-y-0">
-              {report.timeline.map((step, index) => (
-                <TimelineStep
-                  key={step.label}
-                  step={step}
-                  isLast={index === report.timeline.length - 1}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function MetaItem({ icon, label, value }) {
-  return (
-    <div className="flex items-center gap-3">
-      {icon && (
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-600">
-          {icon}
-        </span>
-      )}
-      <div className="min-w-0">
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">
-          {label}
-        </p>
-        <p className="truncate text-sm font-bold text-gray-800">{value}</p>
-      </div>
-    </div>
-  );
-}
-
-function TimelineStep({ step, isLast }) {
-  const isDone = step.time !== "";
-  const isCurrent = !isDone;
-
-  return (
-    <div className="relative flex gap-4 pb-6">
-      {!isLast && (
-        <span
-          className={`absolute left-[13px] top-7 h-[calc(100%-1.75rem)] w-px ${
-            isDone ? "bg-red-200" : "bg-gray-200"
-          }`}
-        />
-      )}
-
-      <span className="relative mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center">
-        {isDone ? (
-          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white">
-            <Check size={14} strokeWidth={3} />
-          </span>
-        ) : isCurrent ? (
-          <span className="relative flex h-7 w-7 items-center justify-center">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-600 opacity-30" />
-            <span className="relative flex h-3.5 w-3.5 rounded-full border-[3px] border-red-600 bg-white" />
-          </span>
-        ) : (
-          <span className="h-3.5 w-3.5 rounded-full border-2 border-gray-300 bg-white" />
         )}
-      </span>
 
-      <div className="min-w-0 pt-0.5">
-        <p
-          className={`text-sm font-semibold ${
-            isDone ? "text-gray-900" : isCurrent ? "text-red-700" : "text-gray-400"
-          }`}
-        >
-          {step.label}
-          {isCurrent && (
-            <span className="ml-2 rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-600">
-              IN PROGRESS
-            </span>
-          )}
-        </p>
-        {isDone && <p className="mt-0.5 text-xs text-gray-400">{step.time}</p>}
+        <div className="mt-4 space-y-2 border-t border-zinc-100 pt-3">
+          <p className="text-[11px] font-extrabold uppercase tracking-wider text-gray-400">
+            Timeline
+          </p>
+          {report.timeline.map((step, index) => (
+            <div key={index} className="flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-red-100 text-[10px] font-bold text-red-600">
+                  <Check size={10} />
+                </span>
+                <span className="font-medium text-gray-700">{step.label}</span>
+              </div>
+              <span className="font-mono text-[11px] text-gray-400">{step.time}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
 }
-

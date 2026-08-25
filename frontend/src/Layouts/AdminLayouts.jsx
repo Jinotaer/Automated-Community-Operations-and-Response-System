@@ -16,6 +16,7 @@ import {
   User,
   Info,
   Users,
+  FileText,
 } from "lucide-react";
 import ApplicationLogo from "../Components/ApplicationLogo";
 import ValorLogo from "@/assets/acors.png";

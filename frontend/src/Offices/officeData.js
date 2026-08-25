@@ -820,6 +820,50 @@ const tourismOffice = {
   incidents: [],
 };
 
+const lcroOffice = {
+  slug: "lcro",
+  code: "DEPT-006",
+  name: "City/Municipal Civil Registrar's Office (LCRO)",
+  shortName: "LCRO",
+  holder: "Atty. Fernando M. Gutierrez",
+  email: "lcro@malaybalay.gov.ph",
+  role: "Civil Registrar",
+  icon: Landmark,
+  stats: [
+    { title: "Total Requests", value: "42", note: "+12 this week" },
+    { title: "Approved & Ready", value: "35", note: "83% auto-match" },
+    { title: "Requires Review", value: "5", note: "Flagged variances" },
+    { title: "In Processing", value: "2", note: "Active queue" },
+    { title: "Avg. Issuance", value: "4.5 min", note: "Automated AI" },
+  ],
+  categories: [
+    "Birth Certificate – Certified Copy",
+    "Marriage Certificate – Certified Copy",
+    "Death Certificate – Certified Copy",
+    "Legal Instruments & Registration",
+  ],
+  categoryBreakdown: [
+    { name: "Birth Certificate", percent: "68% (142)", color: "bg-red-700" },
+    { name: "Marriage Certificate", percent: "18% (38)", color: "bg-red-500" },
+    { name: "Death Certificate", percent: "10% (21)", color: "bg-red-400" },
+    { name: "Legal Instruments", percent: "4% (8)", color: "bg-gray-400" },
+  ],
+  problemAreas: [
+    { area: "Poblacion", reports: "64 requests" },
+    { area: "Casisang", reports: "48 requests" },
+    { area: "Sumpong", reports: "39 requests" },
+    { area: "Kalasungay", reports: "28 requests" },
+    { area: "Aglayan", reports: "22 requests" },
+  ],
+  priorityBreakdown: [
+    { name: "Approved", count: 35, color: "bg-emerald-600", width: 83 },
+    { name: "Under Review", count: 5, color: "bg-amber-500", width: 12 },
+    { name: "Processing", count: 2, color: "bg-blue-600", width: 5 },
+  ],
+  recentReports: [],
+  incidents: [],
+};
+
 export const offices = {
   engineering: engineeringOffice,
   cenro: cenroOffice,
@@ -827,6 +871,7 @@ export const offices = {
   traffic: trafficOffice,
   health: healthOffice,
   tourism: tourismOffice,
+  lcro: lcroOffice,
 };
 
 export {
@@ -836,4 +881,5 @@ export {
   trafficOffice,
   healthOffice,
   tourismOffice,
+  lcroOffice,
 };
