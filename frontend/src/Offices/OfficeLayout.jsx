@@ -52,15 +52,15 @@ export default function OfficeLayout({ office, header, children }) {
 
   const navigation = [
     { name: "Overview", href: `/office/${office.slug}/overview`, icon: LayoutDashboard },
-    ...(office.slug === "tourism" || office.slug === "lcro"
+    ...(office.slug === "tourism" || office.slug === "lcro" || office.slug === "treasurer" || office.slug === "pdao" || office.slug === "soloparent" || office.slug === "cswdo"
       ? []
       : [
           { name: "Reports", href: `/office/${office.slug}/reports`, icon: ClipboardList },
           { name: "Map", href: `/office/${office.slug}/map`, icon: Map },
           { name: "Resolve", href: `/office/${office.slug}/resolve`, icon: CheckCircle2 },
         ]),
-    ...(office.slug === "lcro"
-      ? [{ name: "Certificate Requests", href: `/office/lcro/requests`, icon: FileText }]
+    ...(office.slug === "lcro" || office.slug === "treasurer" || office.slug === "pdao" || office.slug === "soloparent" || office.slug === "cswdo"
+      ? [{ name: "Applications & Requests", href: `/office/${office.slug}/requests`, icon: FileText }]
       : []),
     ...(office.slug === "health" || office.slug === "tourism"
       ? [{ name: "Announcements", href: `/office/${office.slug}/announcements`, icon: Megaphone }]

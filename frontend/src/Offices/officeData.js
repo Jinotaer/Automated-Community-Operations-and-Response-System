@@ -1,5 +1,5 @@
 // src/Offices/officeData.js
-import { Wrench, Leaf, ShieldCheck, TrafficCone, HeartPulse, Landmark } from "lucide-react";
+import { Wrench, Leaf, ShieldCheck, TrafficCone, HeartPulse, Landmark, Wallet, Accessibility, HeartHandshake } from "lucide-react";
 
 const engineeringOffice = {
   slug: "engineering",
@@ -864,6 +864,132 @@ const lcroOffice = {
   incidents: [],
 };
 
+const ctoOffice = {
+  slug: "treasurer",
+  code: "DEPT-008",
+  name: "City Treasurer's Office",
+  shortName: "Treasurer",
+  holder: "Treasurer Carmela R. Villanueva",
+  email: "treasurer@malaybalay.gov.ph",
+  role: "City Treasurer",
+  icon: Wallet,
+  stats: [
+    { title: "Total Requests", value: "28", note: "+8 this week" },
+    { title: "Approved & Ready", value: "20", note: "71% auto-match" },
+    { title: "Requires Review", value: "5", note: "Outstanding balances" },
+    { title: "In Processing", value: "3", note: "Active queue" },
+    { title: "Avg. Issuance", value: "3.2 min", note: "Automated AI" },
+  ],
+  categories: [
+    "Community Tax Certificate (Cedula)",
+    "Certificate of Tax Payment",
+    "Certificate of Tax Clearance",
+  ],
+  categoryBreakdown: [
+    { name: "Community Tax Certificate (Cedula)", percent: "54% (112)", color: "bg-blue-600" },
+    { name: "Certificate of Tax Payment", percent: "28% (58)", color: "bg-violet-500" },
+    { name: "Certificate of Tax Clearance", percent: "18% (37)", color: "bg-emerald-500" },
+  ],
+  problemAreas: [
+    { area: "Poblacion", reports: "52 requests" },
+    { area: "Casisang", reports: "41 requests" },
+    { area: "Sumpong", reports: "34 requests" },
+    { area: "Bangcud", reports: "22 requests" },
+    { area: "Aglayan", reports: "18 requests" },
+  ],
+  priorityBreakdown: [
+    { name: "Approved", count: 20, color: "bg-emerald-600", width: 71 },
+    { name: "Under Review", count: 5, color: "bg-amber-500", width: 18 },
+    { name: "Processing", count: 3, color: "bg-blue-600", width: 11 },
+  ],
+  recentReports: [],
+  incidents: [],
+};
+
+const pdaoOffice = {
+  slug: "pdao",
+  code: "DEPT-009",
+  name: "Persons with Disability Affairs Office",
+  shortName: "PDAO",
+  holder: "Officer Elena B. Corpuz",
+  email: "pdao@malaybalay.gov.ph",
+  role: "PDAO Head Officer",
+  icon: Accessibility,
+  stats: [
+    { title: "Total Applications", value: "32", note: "+12 this week" },
+    { title: "Approved & Issued", value: "24", note: "Registered cardholders" },
+    { title: "Pending Review", value: "6", note: "Officer queue" },
+    { title: "Requires Correction", value: "2", note: "Missing documents" },
+    { title: "Avg. Resolution", value: "1.4 days", note: "Case verification" },
+  ],
+  categories: [
+    "PWD Registration Certificate",
+    "PWD ID",
+    "Certificate of Disability",
+  ],
+  categoryBreakdown: [
+    { name: "PWD Registration Certificate", percent: "45% (84)", color: "bg-blue-600" },
+    { name: "PWD ID", percent: "38% (71)", color: "bg-emerald-500" },
+    { name: "Certificate of Disability", percent: "17% (32)", color: "bg-violet-500" },
+  ],
+  problemAreas: [
+    { area: "Sumpong", reports: "48 applicants" },
+    { area: "Casisang", reports: "42 applicants" },
+    { area: "Bangcud", reports: "31 applicants" },
+    { area: "Poblacion", reports: "28 applicants" },
+    { area: "Aglayan", reports: "20 applicants" },
+  ],
+  priorityBreakdown: [
+    { name: "Approved", count: 24, color: "bg-emerald-600", width: 75 },
+    { name: "Pending", count: 6, color: "bg-blue-600", width: 19 },
+    { name: "Needs Correction", count: 2, color: "bg-amber-500", width: 6 },
+  ],
+  recentReports: [],
+  incidents: [],
+};
+
+const cswdoOffice = {
+  slug: "soloparent",
+  code: "DEPT-010",
+  name: "City Social Welfare & Development Office",
+  shortName: "CSWDO / Solo Parent",
+  holder: "Officer Carmencita P. Alvarez",
+  email: "cswdo@malaybalay.gov.ph",
+  role: "CSWDO Department Head",
+  icon: HeartHandshake,
+  stats: [
+    { title: "Total Filings", value: "41", note: "+14 this week" },
+    { title: "Approved & Issued", value: "30", note: "Registered solo parents" },
+    { title: "Pending Review", value: "8", note: "Social worker queue" },
+    { title: "Requires Correction", value: "3", note: "Missing proof" },
+    { title: "Avg. Resolution", value: "1.2 days", note: "Case verification" },
+  ],
+  categories: [
+    "Solo Parent ID",
+    "Certificate of Solo Parenthood",
+    "Certificate of Registration as Solo Parent",
+  ],
+  categoryBreakdown: [
+    { name: "Solo Parent ID", percent: "52% (98)", color: "bg-emerald-600" },
+    { name: "Certificate of Solo Parenthood", percent: "31% (58)", color: "bg-blue-500" },
+    { name: "Certificate of Registration", percent: "17% (32)", color: "bg-violet-500" },
+  ],
+  problemAreas: [
+    { area: "Casisang", reports: "54 applicants" },
+    { area: "Sumpong", reports: "45 applicants" },
+    { area: "Poblacion", reports: "39 applicants" },
+    { area: "Bangcud", reports: "28 applicants" },
+    { area: "Kalasungay", reports: "22 applicants" },
+  ],
+  priorityBreakdown: [
+    { name: "Approved", count: 30, color: "bg-emerald-600", width: 73 },
+    { name: "Pending", count: 8, color: "bg-blue-600", width: 20 },
+    { name: "Needs Correction", count: 3, color: "bg-amber-500", width: 7 },
+  ],
+  recentReports: [],
+  incidents: [],
+};
+
 export const offices = {
   engineering: engineeringOffice,
   cenro: cenroOffice,
@@ -872,6 +998,10 @@ export const offices = {
   health: healthOffice,
   tourism: tourismOffice,
   lcro: lcroOffice,
+  treasurer: ctoOffice,
+  pdao: pdaoOffice,
+  soloparent: cswdoOffice,
+  cswdo: cswdoOffice,
 };
 
 export {
@@ -882,4 +1012,7 @@ export {
   healthOffice,
   tourismOffice,
   lcroOffice,
+  ctoOffice,
+  pdaoOffice,
+  cswdoOffice,
 };

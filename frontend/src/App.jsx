@@ -46,6 +46,12 @@ import TourismOverview from "./Offices/Tourism/Overview";
 import TourismAnnouncements from "./Offices/Tourism/Announcements";
 import LCROOverview from "./Offices/LCRO/Overview";
 import LCRORequests from "./Offices/LCRO/Requests";
+import CTOOverview from "./Offices/CTO/Overview";
+import CTORequests from "./Offices/CTO/Requests";
+import PDAOOverview from "./Offices/PDAO/Overview";
+import PDAORequests from "./Offices/PDAO/Requests";
+import CSWDOOverview from "./Offices/CSWDO/Overview";
+import CSWDORequests from "./Offices/CSWDO/Requests";
 
 function App() {
   return (
@@ -100,6 +106,14 @@ function App() {
         <Route path="/office/tourism/announcements" element={<TourismAnnouncements />} />
         <Route path="/office/lcro/overview" element={<LCROOverview />} />
         <Route path="/office/lcro/requests" element={<LCRORequests />} />
+        <Route path="/office/treasurer/overview" element={<CTOOverview />} />
+        <Route path="/office/treasurer/requests" element={<CTORequests />} />
+        <Route path="/office/pdao/overview" element={<PDAOOverview />} />
+        <Route path="/office/pdao/requests" element={<PDAORequests />} />
+        <Route path="/office/soloparent/overview" element={<CSWDOOverview />} />
+        <Route path="/office/soloparent/requests" element={<CSWDORequests />} />
+        <Route path="/office/cswdo/overview" element={<CSWDOOverview />} />
+        <Route path="/office/cswdo/requests" element={<CSWDORequests />} />
         <Route path="/admin/settings" element={<AdminSettings />} />
       </Routes>
     </BrowserRouter>

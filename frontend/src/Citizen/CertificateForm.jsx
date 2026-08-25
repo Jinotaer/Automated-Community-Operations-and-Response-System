@@ -7,6 +7,15 @@ import { findCertificate } from "../services/certificateData";
 import BirthCertFlow from "./BirthCertFlow";
 import MarriageCertFlow from "./MarriageCertFlow";
 import DeathCertFlow from "./DeathCertFlow";
+import CedulaFlow from "./CedulaFlow";
+import TaxPaymentCertFlow from "./TaxPaymentCertFlow";
+import TaxClearanceFlow from "./TaxClearanceFlow";
+import PWDRegistrationFlow from "./PWDRegistrationFlow";
+import PWDIDFlow from "./PWDIDFlow";
+import DisabilityCertFlow from "./DisabilityCertFlow";
+import SoloParentIDFlow from "./SoloParentIDFlow";
+import SoloParenthoodCertFlow from "./SoloParenthoodCertFlow";
+import SoloParentRegistrationCertFlow from "./SoloParentRegistrationCertFlow";
 
 export default function CertificateForm() {
   const { officeId, certId } = useParams();
@@ -20,6 +29,18 @@ export default function CertificateForm() {
   const isLCROMarriageCert = officeId === "lcr" && certId === "marriage-cert";
   const isLCRODeathCert = officeId === "lcr" && certId === "death-cert";
 
+  const isCTOCedula = officeId === "treasurer" && certId === "cedula";
+  const isCTOTaxPayment = officeId === "treasurer" && certId === "tax-payment";
+  const isCTOTaxClearance = officeId === "treasurer" && certId === "tax-clearance";
+
+  const isPDAORegistration = officeId === "pdao" && certId === "pwd-registration";
+  const isPDAOId = officeId === "pdao" && certId === "pwd-id";
+  const isPDAODisabilityCert = officeId === "pdao" && certId === "disability-cert";
+
+  const isSoloParentId = officeId === "soloparent" && certId === "solo-parent-id";
+  const isSoloParenthood = officeId === "soloparent" && certId === "solo-parenthood";
+  const isSoloRegistration = officeId === "soloparent" && certId === "solo-registration";
+
   return (
     <CitizenLayout hideHeader>
       {isLCROBirthCert ? (
@@ -28,6 +49,24 @@ export default function CertificateForm() {
         <MarriageCertFlow office={result?.office} cert={result?.cert} />
       ) : isLCRODeathCert ? (
         <DeathCertFlow office={result?.office} cert={result?.cert} />
+      ) : isCTOCedula ? (
+        <CedulaFlow office={result?.office} cert={result?.cert} />
+      ) : isCTOTaxPayment ? (
+        <TaxPaymentCertFlow office={result?.office} cert={result?.cert} />
+      ) : isCTOTaxClearance ? (
+        <TaxClearanceFlow office={result?.office} cert={result?.cert} />
+      ) : isPDAORegistration ? (
+        <PWDRegistrationFlow office={result?.office} cert={result?.cert} />
+      ) : isPDAOId ? (
+        <PWDIDFlow office={result?.office} cert={result?.cert} />
+      ) : isPDAODisabilityCert ? (
+        <DisabilityCertFlow office={result?.office} cert={result?.cert} />
+      ) : isSoloParentId ? (
+        <SoloParentIDFlow office={result?.office} cert={result?.cert} />
+      ) : isSoloParenthood ? (
+        <SoloParenthoodCertFlow office={result?.office} cert={result?.cert} />
+      ) : isSoloRegistration ? (
+        <SoloParentRegistrationCertFlow office={result?.office} cert={result?.cert} />
       ) : (
         <div className="mx-auto max-w-2xl px-5 pb-24 pt-10 lg:px-0">
           <Link

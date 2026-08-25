@@ -61,6 +61,24 @@ const MOCK_ACCOUNTS = [
     password: "acors2025",
     officeSlug: "lcro",
   },
+  {
+    office: "City Treasurer's Office",
+    email: "treasurer@malaybalay.gov.ph",
+    password: "acors2025",
+    officeSlug: "treasurer",
+  },
+  {
+    office: "Persons with Disability Affairs Office (PDAO)",
+    email: "pdao@malaybalay.gov.ph",
+    password: "acors2025",
+    officeSlug: "pdao",
+  },
+  {
+    office: "City Social Welfare and Development Office (CSWDO)",
+    email: "cswdo@malaybalay.gov.ph",
+    password: "acors2025",
+    officeSlug: "soloparent",
+  },
 ];
 
 export default function OfficeLogin() {
