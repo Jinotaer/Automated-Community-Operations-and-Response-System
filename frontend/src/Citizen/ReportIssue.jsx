@@ -340,7 +340,7 @@ function UploadPhotoStep({
               className="flex items-center justify-center gap-2 rounded-2xl bg-red-600 py-4 text-sm font-extrabold text-white hover:bg-red-700 disabled:bg-gray-400"
             >
               <Camera size={18} />
-              Choose Photo
+              Take a Photo
             </button>
 
             <button

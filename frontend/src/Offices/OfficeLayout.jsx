@@ -1,6 +1,5 @@
-// src/Offices/OfficeLayout.jsx
 import { useState } from "react";
-import { NavLink, Link, useLocation } from "react-router-dom";
+import { NavLink, Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   ClipboardList,
@@ -46,24 +45,70 @@ export default function OfficeLayout({ office, header, children }) {
   const [notificationOpen, setNotificationOpen] = useState(false);
 
   const location = useLocation();
+  const navigate = useNavigate();
   const pathname = location.pathname;
+
+  const handleLogout = () => {
+    localStorage.removeItem("acors_office_session");
+    sessionStorage.clear();
+    navigate("/office/login");
+  };
 
   const OfficeIcon = office.icon;
 
   const navigation = [
-    { name: "Overview", href: `/office/${office.slug}/overview`, icon: LayoutDashboard },
-    ...(office.slug === "tourism" || office.slug === "lcro" || office.slug === "treasurer" || office.slug === "pdao" || office.slug === "soloparent" || office.slug === "cswdo"
+    {
+      name: "Overview",
+      href: `/office/${office.slug}/overview`,
+      icon: LayoutDashboard,
+    },
+    ...(office.slug === "tourism" ||
+    office.slug === "lcro" ||
+    office.slug === "treasurer" ||
+    office.slug === "pdao" ||
+    office.slug === "soloparent" ||
+    office.slug === "cswdo" ||
+    office.slug === "bplo" ||
+    office.slug === "osca" ||
+    office.slug === "assessor"
       ? []
       : [
-          { name: "Reports", href: `/office/${office.slug}/reports`, icon: ClipboardList },
+          {
+            name: "Reports",
+            href: `/office/${office.slug}/reports`,
+            icon: ClipboardList,
+          },
           { name: "Map", href: `/office/${office.slug}/map`, icon: Map },
-          { name: "Resolve", href: `/office/${office.slug}/resolve`, icon: CheckCircle2 },
+          {
+            name: "Resolve",
+            href: `/office/${office.slug}/resolve`,
+            icon: CheckCircle2,
+          },
         ]),
-    ...(office.slug === "lcro" || office.slug === "treasurer" || office.slug === "pdao" || office.slug === "soloparent" || office.slug === "cswdo"
-      ? [{ name: "Applications & Requests", href: `/office/${office.slug}/requests`, icon: FileText }]
+    ...(office.slug === "lcro" ||
+    office.slug === "treasurer" ||
+    office.slug === "pdao" ||
+    office.slug === "soloparent" ||
+    office.slug === "cswdo" ||
+    office.slug === "bplo" ||
+    office.slug === "osca" ||
+    office.slug === "assessor"
+      ? [
+          {
+            name: "Applications & Requests",
+            href: `/office/${office.slug}/requests`,
+            icon: FileText,
+          },
+        ]
       : []),
     ...(office.slug === "health" || office.slug === "tourism"
-      ? [{ name: "Announcements", href: `/office/${office.slug}/announcements`, icon: Megaphone }]
+      ? [
+          {
+            name: "Announcements",
+            href: `/office/${office.slug}/announcements`,
+            icon: Megaphone,
+          },
+        ]
       : []),
   ];
 
@@ -123,25 +168,20 @@ export default function OfficeLayout({ office, header, children }) {
           {/* Sidebar Footer */}
           <div className="mt-auto">
             <div className="mb-4 space-y-1 border-t border-zinc-200 pt-4 lg:hidden">
-              <Link
-                to="/admin/overview"
-                onClick={() => setSidebarOpen(false)}
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Back to Admin Console
-              </Link>
-
               <button
                 type="button"
-                className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
+                onClick={handleLogout}
+                className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50 active:scale-[0.98]"
               >
                 <LogOut className="h-4 w-4" />
                 Logout
               </button>
             </div>
 
-            <div className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-3 text-zinc-800">
+            <Link
+              to={`/office/${office.slug}/profile`}
+              className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-3 text-zinc-800 transition hover:border-red-200 hover:bg-red-50/40 active:scale-[0.99]"
+            >
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white ring-1 ring-zinc-200">
                 <ApplicationLogo
                   alt="ACORS logo"
@@ -151,18 +191,18 @@ export default function OfficeLayout({ office, header, children }) {
               </div>
 
               <div className="min-w-0 flex-1">
-                <p className="text-[11px] font-medium leading-tight text-zinc-500">
+                <p className="text-[11px] font-medium leading-tight text-zinc-500 truncate">
                   {office.name}
                 </p>
-                <p className="mt-0.5 text-sm font-semibold leading-tight text-zinc-800">
+                <p className="mt-0.5 text-sm font-semibold leading-tight text-zinc-800 truncate">
                   {office.holder}
                 </p>
               </div>
 
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white ring-1 ring-zinc-200">
-                <Info className="h-4 w-4 text-zinc-500" />
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white ring-1 ring-zinc-200 text-zinc-400 group-hover:text-red-600">
+                <Info className="h-4 w-4" />
               </div>
-            </div>
+            </Link>
           </div>
         </div>
       </aside>
@@ -185,7 +225,9 @@ export default function OfficeLayout({ office, header, children }) {
             {/* Page title */}
             {header && (
               <div className="hidden sm:block">
-                <h1 className="text-lg font-semibold text-zinc-900">{header}</h1>
+                <h1 className="text-lg font-semibold text-zinc-900">
+                  {header}
+                </h1>
               </div>
             )}
 
@@ -275,30 +317,25 @@ export default function OfficeLayout({ office, header, children }) {
                 </button>
 
                 {userMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-[min(13rem,calc(100vw-2rem))] overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-md">
-                    <div className="border-b border-zinc-200 px-4 py-3">
-                      <div className="text-sm font-medium text-zinc-900">
+                  <div className="absolute right-0 mt-2 w-56 overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xl animate-modal-in z-50">
+                    <Link
+                      to={`/office/${office.slug}/profile`}
+                      onClick={() => setUserMenuOpen(false)}
+                      className="block border-b border-zinc-100 px-4 py-3 text-left transition hover:bg-red-50/50 group"
+                    >
+                      <div className="text-sm font-bold text-zinc-900 group-hover:text-red-600 transition truncate">
                         {office.holder}
                       </div>
-                      <div className="truncate text-xs text-zinc-500">
+                      <div className="truncate text-xs font-mono text-zinc-500">
                         {office.email}
                       </div>
-                    </div>
+                    </Link>
 
-                    <div className="py-2">
-                      <Link
-                        to="/admin/overview"
-                        className="flex items-center gap-3 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100"
-                      >
-                        <ArrowLeft className="h-4 w-4" />
-                        Back to Admin Console
-                      </Link>
-                    </div>
-
-                    <div className="border-t border-zinc-200 py-2">
+                    <div className="p-1.5">
                       <button
                         type="button"
-                        className="flex w-full items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                        onClick={handleLogout}
+                        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-red-600 transition hover:bg-red-50 active:scale-[0.98]"
                       >
                         <LogOut className="h-4 w-4" />
                         Logout

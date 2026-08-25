@@ -52,6 +52,13 @@ import PDAOOverview from "./Offices/PDAO/Overview";
 import PDAORequests from "./Offices/PDAO/Requests";
 import CSWDOOverview from "./Offices/CSWDO/Overview";
 import CSWDORequests from "./Offices/CSWDO/Requests";
+import BPLOOverview from "./Offices/BPLO/Overview";
+import BPLORequests from "./Offices/BPLO/Requests";
+import OSCAOverview from "./Offices/OSCA/Overview";
+import OSCARequests from "./Offices/OSCA/Requests";
+import AssessorOverview from "./Offices/Assessor/Overview";
+import AssessorRequests from "./Offices/Assessor/Requests";
+import OfficeProfile from "./Offices/OfficeProfile";
 
 function App() {
   return (
@@ -114,6 +121,13 @@ function App() {
         <Route path="/office/soloparent/requests" element={<CSWDORequests />} />
         <Route path="/office/cswdo/overview" element={<CSWDOOverview />} />
         <Route path="/office/cswdo/requests" element={<CSWDORequests />} />
+        <Route path="/office/bplo/overview" element={<BPLOOverview />} />
+        <Route path="/office/bplo/requests" element={<BPLORequests />} />
+        <Route path="/office/osca/overview" element={<OSCAOverview />} />
+        <Route path="/office/osca/requests" element={<OSCARequests />} />
+        <Route path="/office/assessor/overview" element={<AssessorOverview />} />
+        <Route path="/office/assessor/requests" element={<AssessorRequests />} />
+        <Route path="/office/:officeSlug/profile" element={<OfficeProfile />} />
         <Route path="/admin/settings" element={<AdminSettings />} />
       </Routes>
     </BrowserRouter>

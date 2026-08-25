@@ -1,5 +1,5 @@
 // src/Offices/officeData.js
-import { Wrench, Leaf, ShieldCheck, TrafficCone, HeartPulse, Landmark, Wallet, Accessibility, HeartHandshake } from "lucide-react";
+import { Wrench, Leaf, ShieldCheck, TrafficCone, HeartPulse, Landmark, Wallet, Accessibility, HeartHandshake, Briefcase, Users, FileText } from "lucide-react";
 
 const engineeringOffice = {
   slug: "engineering",
@@ -990,6 +990,132 @@ const cswdoOffice = {
   incidents: [],
 };
 
+const bploOffice = {
+  slug: "bplo",
+  code: "DEPT-011",
+  name: "Business Permits and Licensing Office",
+  shortName: "BPLO",
+  holder: "Atty. Rodrigo V. Tan",
+  email: "bplo@malaybalay.gov.ph",
+  role: "Chief Licensing Officer",
+  icon: Briefcase,
+  stats: [
+    { title: "Total Filings", value: "56", note: "+18 this week" },
+    { title: "Approved & Issued", value: "38", note: "Active Mayor's permits" },
+    { title: "Pending Review", value: "12", note: "Licensing queue" },
+    { title: "Requires Correction", value: "6", note: "Clearance issues" },
+    { title: "Avg. Turnaround", value: "1.6 days", note: "Online renewal" },
+  ],
+  categories: [
+    "Business Permit Renewal",
+    "Certificate of Business Closure",
+    "Certificate of Business Retirement",
+  ],
+  categoryBreakdown: [
+    { name: "Business Permit Renewal", percent: "58% (124)", color: "bg-emerald-600" },
+    { name: "Certificate of Business Closure", percent: "24% (51)", color: "bg-amber-500" },
+    { name: "Certificate of Business Retirement", percent: "18% (38)", color: "bg-purple-500" },
+  ],
+  problemAreas: [
+    { area: "Poblacion", reports: "82 businesses" },
+    { area: "Casisang", reports: "61 businesses" },
+    { area: "Sumpong", reports: "49 businesses" },
+    { area: "Aglayan", reports: "33 businesses" },
+    { area: "Bangcud", reports: "25 businesses" },
+  ],
+  priorityBreakdown: [
+    { name: "Approved", count: 38, color: "bg-emerald-600", width: 68 },
+    { name: "Pending", count: 12, color: "bg-blue-600", width: 21 },
+    { name: "Needs Correction", count: 6, color: "bg-amber-500", width: 11 },
+  ],
+  recentReports: [],
+  incidents: [],
+};
+
+const oscaOffice = {
+  slug: "osca",
+  code: "DEPT-012",
+  name: "Office for Senior Citizens Affairs",
+  shortName: "OSCA",
+  holder: "Mrs. Remedios L. Guingona",
+  email: "osca@malaybalay.gov.ph",
+  role: "OSCA Head / Senior Affairs Officer",
+  icon: Users,
+  stats: [
+    { title: "Total Filings", value: "48", note: "+14 this week" },
+    { title: "Senior IDs Issued", value: "32", note: "Active RA 9994 IDs" },
+    { title: "Pending Review", value: "11", note: "Awaiting staff audit" },
+    { title: "Requires Correction", value: "5", note: "Residency checks" },
+    { title: "Avg. Turnaround", value: "1.2 days", note: "Free issuance" },
+  ],
+  categories: [
+    "Senior Citizen ID",
+    "Senior Citizen Registration Certificate",
+    "Senior Citizen Certification",
+  ],
+  categoryBreakdown: [
+    { name: "Senior Citizen ID", percent: "62% (112)", color: "bg-emerald-600" },
+    { name: "Registration Certificate", percent: "23% (42)", color: "bg-blue-500" },
+    { name: "Senior Citizen Certification", percent: "15% (27)", color: "bg-purple-500" },
+  ],
+  problemAreas: [
+    { area: "Poblacion", reports: "68 seniors" },
+    { area: "Casisang", reports: "54 seniors" },
+    { area: "Sumpong", reports: "41 seniors" },
+    { area: "Kalasungay", reports: "26 seniors" },
+    { area: "Bangcud", reports: "21 seniors" },
+  ],
+  priorityBreakdown: [
+    { name: "Approved", count: 32, color: "bg-emerald-600", width: 67 },
+    { name: "Pending", count: 11, color: "bg-blue-600", width: 23 },
+    { name: "Needs Correction", count: 5, color: "bg-amber-500", width: 10 },
+  ],
+  recentReports: [],
+  incidents: [],
+};
+
+const assessorOffice = {
+  slug: "assessor",
+  code: "DEPT-013",
+  name: "City Assessor's Office",
+  shortName: "ASSESSOR",
+  holder: "Engr. Roberto M. Dizon",
+  email: "assessor@malaybalay.gov.ph",
+  role: "City Assessor / Appraisal Chief",
+  icon: FileText,
+  stats: [
+    { title: "Total Filings", value: "64", note: "+19 this week" },
+    { title: "Tax Decs Issued", value: "42", note: "Certified true copies" },
+    { title: "Pending Review", value: "14", note: "Cadastral mapping queue" },
+    { title: "Requires Correction", value: "8", note: "Title / PIN checks" },
+    { title: "Avg. Turnaround", value: "1.0 day", note: "Digital verification" },
+  ],
+  categories: [
+    "Certified Copy of Tax Declaration",
+    "Property Assessment Certification",
+    "Certification of Assessed Value",
+  ],
+  categoryBreakdown: [
+    { name: "Certified Copy of Tax Declaration", percent: "55% (138)", color: "bg-emerald-600" },
+    { name: "Property Assessment Certification", percent: "28% (70)", color: "bg-blue-500" },
+    { name: "Certification of Assessed Value", percent: "17% (43)", color: "bg-purple-500" },
+  ],
+  problemAreas: [
+    { area: "Poblacion", reports: "94 parcels" },
+    { area: "Casisang", reports: "72 parcels" },
+    { area: "Sumpong", reports: "56 parcels" },
+    { area: "Kalasungay", reports: "38 parcels" },
+    { area: "Aglayan", reports: "29 parcels" },
+  ],
+  priorityBreakdown: [
+    { name: "Approved", count: 42, color: "bg-emerald-600", width: 66 },
+    { name: "Pending", count: 14, color: "bg-blue-600", width: 22 },
+    { name: "Needs Correction", count: 8, color: "bg-amber-500", width: 12 },
+  ],
+  recentReports: [],
+  incidents: [],
+};
+
 export const offices = {
   engineering: engineeringOffice,
   cenro: cenroOffice,
@@ -1002,6 +1128,9 @@ export const offices = {
   pdao: pdaoOffice,
   soloparent: cswdoOffice,
   cswdo: cswdoOffice,
+  bplo: bploOffice,
+  osca: oscaOffice,
+  assessor: assessorOffice,
 };
 
 export {
@@ -1015,4 +1144,7 @@ export {
   ctoOffice,
   pdaoOffice,
   cswdoOffice,
+  bploOffice,
+  oscaOffice,
+  assessorOffice,
 };

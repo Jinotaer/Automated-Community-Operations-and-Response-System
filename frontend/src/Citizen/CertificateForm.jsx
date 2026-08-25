@@ -16,6 +16,15 @@ import DisabilityCertFlow from "./DisabilityCertFlow";
 import SoloParentIDFlow from "./SoloParentIDFlow";
 import SoloParenthoodCertFlow from "./SoloParenthoodCertFlow";
 import SoloParentRegistrationCertFlow from "./SoloParentRegistrationCertFlow";
+import BusinessRenewalFlow from "./BusinessRenewalFlow";
+import BusinessClosureFlow from "./BusinessClosureFlow";
+import BusinessRetirementFlow from "./BusinessRetirementFlow";
+import SeniorCitizenIDFlow from "./SeniorCitizenIDFlow";
+import SeniorRegistrationCertFlow from "./SeniorRegistrationCertFlow";
+import SeniorCertificationFlow from "./SeniorCertificationFlow";
+import TaxDeclarationCopyFlow from "./TaxDeclarationCopyFlow";
+import PropertyAssessmentCertFlow from "./PropertyAssessmentCertFlow";
+import AssessedValueCertFlow from "./AssessedValueCertFlow";
 
 export default function CertificateForm() {
   const { officeId, certId } = useParams();
@@ -40,6 +49,18 @@ export default function CertificateForm() {
   const isSoloParentId = officeId === "soloparent" && certId === "solo-parent-id";
   const isSoloParenthood = officeId === "soloparent" && certId === "solo-parenthood";
   const isSoloRegistration = officeId === "soloparent" && certId === "solo-registration";
+
+  const isBPLORenewal = officeId === "bplo" && (certId === "business-renewal" || certId === "business-permit-renewal");
+  const isBPLOClosure = officeId === "bplo" && certId === "business-closure";
+  const isBPLORetirement = officeId === "bplo" && certId === "business-retirement";
+
+  const isOSCASeniorId = officeId === "osca" && certId === "senior-id";
+  const isOSCARegistration = officeId === "osca" && certId === "senior-registration";
+  const isOSCACertification = officeId === "osca" && certId === "senior-certification";
+
+  const isAssessorTaxDec = officeId === "assessor" && certId === "tax-declaration";
+  const isAssessorPropertyAssessment = officeId === "assessor" && certId === "property-assessment";
+  const isAssessorAssessedValue = officeId === "assessor" && certId === "assessed-value";
 
   return (
     <CitizenLayout hideHeader>
@@ -67,6 +88,24 @@ export default function CertificateForm() {
         <SoloParenthoodCertFlow office={result?.office} cert={result?.cert} />
       ) : isSoloRegistration ? (
         <SoloParentRegistrationCertFlow office={result?.office} cert={result?.cert} />
+      ) : isBPLORenewal ? (
+        <BusinessRenewalFlow office={result?.office} cert={result?.cert} />
+      ) : isBPLOClosure ? (
+        <BusinessClosureFlow office={result?.office} cert={result?.cert} />
+      ) : isBPLORetirement ? (
+        <BusinessRetirementFlow office={result?.office} cert={result?.cert} />
+      ) : isOSCASeniorId ? (
+        <SeniorCitizenIDFlow office={result?.office} cert={result?.cert} />
+      ) : isOSCARegistration ? (
+        <SeniorRegistrationCertFlow office={result?.office} cert={result?.cert} />
+      ) : isOSCACertification ? (
+        <SeniorCertificationFlow office={result?.office} cert={result?.cert} />
+      ) : isAssessorTaxDec ? (
+        <TaxDeclarationCopyFlow office={result?.office} cert={result?.cert} />
+      ) : isAssessorPropertyAssessment ? (
+        <PropertyAssessmentCertFlow office={result?.office} cert={result?.cert} />
+      ) : isAssessorAssessedValue ? (
+        <AssessedValueCertFlow office={result?.office} cert={result?.cert} />
       ) : (
         <div className="mx-auto max-w-2xl px-5 pb-24 pt-10 lg:px-0">
           <Link

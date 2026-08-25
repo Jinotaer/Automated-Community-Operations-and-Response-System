@@ -1,6 +1,6 @@
 // src/layouts/AdminLayout.jsx
 import { useState } from "react";
-import { NavLink, Link, useLocation } from "react-router-dom";
+import { NavLink, Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   ClipboardList,
@@ -74,7 +74,14 @@ export default function AdminLayout({ children, header }) {
   const [notificationOpen, setNotificationOpen] = useState(false);
 
   const location = useLocation();
+  const navigate = useNavigate();
   const pathname = location.pathname;
+
+  const handleLogout = () => {
+    localStorage.removeItem("acors_admin_session");
+    sessionStorage.clear();
+    navigate("/admin/login");
+  };
 
   const notifications = [
     {
@@ -176,7 +183,8 @@ export default function AdminLayout({ children, header }) {
 
               <button
                 type="button"
-                className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
+                onClick={handleLogout}
+                className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50 active:scale-[0.98]"
               >
                 <LogOut className="h-4 w-4" />
                 Logout
@@ -368,7 +376,8 @@ export default function AdminLayout({ children, header }) {
                     <div className="border-t border-zinc-200 py-2">
                       <button
                         type="button"
-                        className="flex w-full items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                        onClick={handleLogout}
+                        className="flex w-full items-center gap-3 px-4 py-2 text-sm text-red-600 transition hover:bg-red-50 active:scale-[0.98]"
                       >
                         <LogOut className="h-4 w-4" />
                         Logout

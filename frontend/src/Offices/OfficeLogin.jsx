@@ -79,6 +79,24 @@ const MOCK_ACCOUNTS = [
     password: "acors2025",
     officeSlug: "soloparent",
   },
+  {
+    office: "Business Permits and Licensing Office (BPLO)",
+    email: "bplo@malaybalay.gov.ph",
+    password: "acors2025",
+    officeSlug: "bplo",
+  },
+  {
+    office: "Office for Senior Citizens Affairs (OSCA)",
+    email: "osca@malaybalay.gov.ph",
+    password: "acors2025",
+    officeSlug: "osca",
+  },
+  {
+    office: "City Assessor's Office",
+    email: "assessor@malaybalay.gov.ph",
+    password: "acors2025",
+    officeSlug: "assessor",
+  },
 ];
 
 export default function OfficeLogin() {
@@ -368,56 +386,60 @@ export default function OfficeLogin() {
       {demoOpen && (
         <div
           onClick={() => setDemoOpen(false)}
-          className="fixed inset-0 z-50 flex animate-fade-in items-end justify-center bg-zinc-950/60 backdrop-blur-sm sm:items-center sm:p-6"
+          className="fixed inset-0 z-50 flex animate-fade-in items-center justify-center bg-zinc-950/60 p-4 backdrop-blur-sm sm:p-6"
         >
           <div
             role="dialog"
             aria-modal="true"
             aria-label="Demo accounts"
             onClick={(event) => event.stopPropagation()}
-            className="w-full max-w-md animate-modal-in rounded-t-[2rem] bg-white p-6 shadow-2xl sm:rounded-[2rem]"
+            className="flex max-h-[88vh] w-full max-w-lg flex-col overflow-hidden rounded-[2rem] bg-white p-5 shadow-2xl animate-modal-in sm:max-h-[84vh] sm:p-6"
           >
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
-                  Quick access
-                </p>
-                <h3 className="mt-1 text-xl font-extrabold text-zinc-900">
-                  Demo accounts
-                </h3>
+            {/* Modal Header */}
+            <div className="shrink-0 border-b border-zinc-100 pb-3.5">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-red-600">
+                    Quick Access
+                  </p>
+                  <h3 className="mt-0.5 text-lg font-extrabold text-zinc-900 sm:text-xl">
+                    LGU Demo Accounts
+                  </h3>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setDemoOpen(false)}
+                  aria-label="Close demo accounts"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-zinc-500 transition hover:bg-zinc-200 hover:text-zinc-900"
+                >
+                  <X size={18} />
+                </button>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setDemoOpen(false)}
-                aria-label="Close demo accounts"
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-zinc-500 transition hover:bg-zinc-200 hover:text-zinc-900"
-              >
-                <X size={18} />
-              </button>
+              <div className="mt-2.5 flex items-center justify-between rounded-xl bg-zinc-50 px-3.5 py-2 text-xs text-zinc-600">
+                <span>Default Password:</span>
+                <span className="font-mono font-bold text-zinc-900 bg-white border border-zinc-200 rounded-md px-2 py-0.5 shadow-2xs">
+                  acors2025
+                </span>
+              </div>
             </div>
 
-            <p className="mt-2 text-xs leading-5 text-zinc-500">
-              Password for all accounts:{" "}
-              <span className="font-mono font-semibold text-zinc-700">
-                acors2025
-              </span>
-            </p>
-
-            <ul className="mt-5 space-y-2">
+            {/* Scrollable Accounts List */}
+            <ul className="mt-3 flex-1 space-y-2 overflow-y-auto pr-1 overscroll-contain">
               {MOCK_ACCOUNTS.map((account) => (
                 <li key={account.officeSlug}>
                   <button
                     type="button"
                     onClick={() => useDemoAccount(account)}
-                    className="group flex w-full items-center gap-3 rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-left transition hover:border-red-200 hover:bg-red-50/50 active:translate-y-px"
+                    className="group flex w-full items-center gap-3 rounded-2xl border border-zinc-200 bg-white p-3 text-left transition hover:border-red-300 hover:bg-red-50/40 active:scale-[0.99]"
                   >
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-600 text-white">
-                      <Building2 size={17} />
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-600 text-white shadow-xs">
+                      <Building2 size={16} />
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-zinc-800">
+                      <p className="truncate text-xs font-bold text-zinc-900 sm:text-sm">
                         {account.office}
                       </p>
                       <p className="truncate font-mono text-[11px] text-zinc-500">
@@ -426,13 +448,20 @@ export default function OfficeLogin() {
                     </div>
 
                     <ArrowRight
-                      size={16}
-                      className="shrink-0 text-zinc-300 transition group-hover:text-red-600"
+                      size={15}
+                      className="shrink-0 text-zinc-300 transition group-hover:translate-x-0.5 group-hover:text-red-600"
                     />
                   </button>
                 </li>
               ))}
             </ul>
+
+            {/* Modal Footer */}
+            <div className="shrink-0 border-t border-zinc-100 pt-3 text-center">
+              <p className="text-[11px] text-zinc-400">
+                Click any department account to autofill credentials instantly.
+              </p>
+            </div>
           </div>
         </div>
       )}
