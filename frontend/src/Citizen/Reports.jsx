@@ -1,90 +1,109 @@
 // src/Citizen/Reports.jsx
 import { useEffect, useState } from "react";
-import { MapPin, Clock3, X, Check } from "lucide-react";
+import {
+  MapPin,
+  Clock3,
+  X,
+  Check,
+  Building,
+  Share2,
+  HelpCircle,
+  Sparkles,
+  Send,
+  CheckCircle2,
+  AlertTriangle,
+  Layers,
+  ChevronRight,
+} from "lucide-react";
 import CitizenLayout from "../Layouts/CitizenLayouts";
-import pothole from "../assets/national-highway.jpg";
-import outage from "../assets/outage.jpg";
-import light from "../assets/light.jpg";
+import { Link } from "react-router-dom";
+import {
+  getStoredComplaints,
+  residentSubmitAdditionalInfo,
+} from "../services/complaintsStore";
 
-const reports = [
-  {
-    id: "MBY-2024-00123",
-    title: "Large pothole along National Highway",
-    location: "Casisang, Malaybalay City",
-    updated: "June 8, 2025 · 10:30 AM",
-    status: "In Progress",
-    category: "Road Damage",
-    image: pothole,
-    description:
-      "A large pothole along the national highway in Casisang is forcing vehicles to slow down and swerve. City Engineering has marked the area for patching.",
-    timeline: [
-      { label: "Report submitted", time: "June 5, 2025 · 9:05 AM" },
-      { label: "Received by City Hall", time: "June 5, 2025 · 9:20 AM" },
-      { label: "Assigned to City Engineering", time: "June 6, 2025 · 1:00 PM" },
-      { label: "Patching in progress", time: "" },
-    ],
-  },
-  {
-    id: "MBY-2024-00120",
-    title: "Garbage accumulation near the river",
-    location: "Sumpong, Malaybalay City",
-    updated: "June 7, 2025 · 2:15 PM",
-    status: "Under Review",
-    category: "Garbage and Waste",
-    image: outage,
-    description:
-      "Garbage has been accumulating near the river in Sumpong. The City Environment Office is reviewing the schedule for a cleanup run.",
-    timeline: [
-      { label: "Report submitted", time: "June 5, 2025 · 7:30 AM" },
-      { label: "Received by City Hall", time: "June 5, 2025 · 7:45 AM" },
-      { label: "Under LGU review", time: "" },
-    ],
-  },
-  {
-    id: "MBY-2024-00115",
-    title: "Broken streetlight in front of school",
-    location: "Kalasungay, Malaybalay City",
-    updated: "June 6, 2025 · 8:45 AM",
-    status: "Resolved",
-    category: "Street Lights",
-    image: light,
-    description:
-      "The streetlight in front of the school in Kalasungay was repaired and is now working normally for the evening pedestrian route.",
-    timeline: [
-      { label: "Report submitted", time: "June 2, 2025 · 6:10 PM" },
-      { label: "Received by City Hall", time: "June 2, 2025 · 6:25 PM" },
-      { label: "Assigned to City Engineering", time: "June 3, 2025 · 8:00 AM" },
-      { label: "Repairs completed", time: "June 6, 2025 · 7:50 AM" },
-      { label: "Marked resolved", time: "June 6, 2025 · 8:45 AM" },
-    ],
-  },
+const filters = [
+  "All",
+  "Barangay Review",
+  "In Progress",
+  "Escalated to LGU",
+  "Resolved",
 ];
 
-const filters = ["All", "Pending", "In Progress", "Resolved", "Closed"];
-
 export default function MyReports() {
+  const [complaints, setComplaints] = useState(getStoredComplaints());
   const [activeFilter, setActiveFilter] = useState("All");
   const [selectedReport, setSelectedReport] = useState(null);
 
-  const filteredReports =
-    activeFilter === "All"
-      ? reports
-      : reports.filter((r) => r.status === activeFilter);
+  useEffect(() => {
+    function loadData() {
+      const data = getStoredComplaints();
+      setComplaints(data);
+      if (selectedReport) {
+        const refreshed = data.find((c) => c.id === selectedReport.id);
+        if (refreshed) setSelectedReport(refreshed);
+      }
+    }
+    loadData();
+    window.addEventListener("acors_complaints_updated", loadData);
+    return () => {
+      window.removeEventListener("acors_complaints_updated", loadData);
+    };
+  }, [selectedReport]);
+
+  const filteredReports = complaints.filter((r) => {
+    if (activeFilter === "All") return true;
+    if (activeFilter === "Barangay Review") {
+      return (
+        r.status === "BARANGAY REVIEW" ||
+        r.status === "SUBMITTED" ||
+        r.status === "INFORMATION REQUIRED" ||
+        r.status === "INFORMATION SUBMITTED"
+      );
+    }
+    if (activeFilter === "In Progress") {
+      return (
+        r.status === "IN PROGRESS" ||
+        r.status === "ACCEPTED" ||
+        r.status === "LGU ACCEPTED" ||
+        r.status === "LGU IN PROGRESS"
+      );
+    }
+    if (activeFilter === "Escalated to LGU") {
+      return (
+        r.status === "ESCALATED TO LGU" ||
+        r.status === "LGU REVIEW" ||
+        r.status === "LGU ACCEPTED" ||
+        r.status === "LGU IN PROGRESS"
+      );
+    }
+    if (activeFilter === "Resolved") {
+      return r.status === "RESOLVED";
+    }
+    return true;
+  });
 
   return (
     <CitizenLayout hideNavigation={Boolean(selectedReport)}>
       {/* Mobile View */}
       <div className="lg:hidden">
         <section className="px-5 pt-5">
-          <div className="flex gap-2 overflow-x-auto pb-2">
+          <div className="flex items-center justify-between mb-3">
+            <h1 className="text-xl font-extrabold text-gray-900">My Reports</h1>
+            <span className="text-xs font-bold text-red-600 font-mono">
+              {complaints.length} Total
+            </span>
+          </div>
+
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
             {filters.map((filter) => (
               <button
                 key={filter}
                 onClick={() => setActiveFilter(filter)}
-                className={`shrink-0 rounded-full px-4 py-2 text-xs font-bold transition-colors ${
+                className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-bold transition-colors ${
                   activeFilter === filter
-                    ? "bg-red-600 text-white"
-                    : "bg-gray-100 text-gray-500 hover:bg-red-50 hover:text-red-600"
+                    ? "bg-red-600 text-white shadow-xs"
+                    : "bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-600"
                 }`}
               >
                 {filter}
@@ -93,7 +112,7 @@ export default function MyReports() {
           </div>
         </section>
 
-        <main className="space-y-4 px-5 pt-3">
+        <main className="space-y-3.5 px-5 pt-3 pb-16">
           {filteredReports.length > 0 ? (
             filteredReports.map((report) => (
               <ReportCard
@@ -103,7 +122,7 @@ export default function MyReports() {
               />
             ))
           ) : (
-            <p className="py-10 text-center text-sm text-gray-400">
+            <p className="py-12 text-center text-xs text-gray-400">
               No reports found for &ldquo;{activeFilter}&rdquo;.
             </p>
           )}
@@ -115,28 +134,31 @@ export default function MyReports() {
         <header className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-extrabold text-gray-900">
-              My Reports
+              My Community Reports
             </h1>
-            <p className="mt-1 text-gray-500">
-              Track the status and updates of your submitted reports.
+            <p className="mt-1 text-sm text-gray-500">
+              Track the 3-tier status &amp; updates of your submitted reports across Barangay and LGU levels.
             </p>
           </div>
 
-          <button className="rounded-2xl bg-red-600 px-5 py-3 text-sm font-semibold text-white hover:bg-red-700">
+          <Link
+            to="/report-issue"
+            className="rounded-2xl bg-red-600 px-5 py-3 text-xs font-extrabold text-white hover:bg-red-700 shadow-sm transition"
+          >
             Submit New Report
-          </button>
+          </Link>
         </header>
 
-        <section className="mt-8 rounded-3xl bg-white p-6 shadow-sm">
+        <section className="mt-8 rounded-3xl bg-white p-6 shadow-xs border border-zinc-100">
           <div className="mb-5 flex flex-wrap gap-2">
             {filters.map((filter) => (
               <button
                 key={filter}
                 onClick={() => setActiveFilter(filter)}
-                className={`rounded-full px-5 py-2 text-sm font-bold transition-colors ${
+                className={`rounded-full px-4 py-2 text-xs font-bold transition-colors ${
                   activeFilter === filter
-                    ? "bg-red-600 text-white"
-                    : "bg-gray-100 text-gray-500 hover:bg-red-50 hover:text-red-600"
+                    ? "bg-red-600 text-white shadow-xs"
+                    : "bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-600"
                 }`}
               >
                 {filter}
@@ -144,7 +166,7 @@ export default function MyReports() {
             ))}
           </div>
 
-          <div className="grid gap-4">
+          <div className="grid gap-3.5">
             {filteredReports.length > 0 ? (
               filteredReports.map((report) => (
                 <DesktopReportCard
@@ -154,7 +176,7 @@ export default function MyReports() {
                 />
               ))
             ) : (
-              <p className="py-10 text-center text-sm text-gray-400">
+              <p className="py-12 text-center text-sm text-gray-400">
                 No reports found for &ldquo;{activeFilter}&rdquo;.
               </p>
             )}
@@ -166,6 +188,10 @@ export default function MyReports() {
         <ReportDetailModal
           report={selectedReport}
           onClose={() => setSelectedReport(null)}
+          onInfoSubmitted={() => {
+            const updated = getStoredComplaints().find((c) => c.id === selectedReport.id);
+            if (updated) setSelectedReport(updated);
+          }}
         />
       )}
     </CitizenLayout>
@@ -176,35 +202,34 @@ function ReportCard({ report, onSelect }) {
   return (
     <button
       onClick={onSelect}
-      className="w-full rounded-2xl bg-white p-3 text-left shadow-sm transition hover:scale-[1.01]"
+      className="w-full rounded-2xl bg-white p-3.5 text-left shadow-xs border border-zinc-100 transition hover:border-red-200 active:scale-98"
     >
       <div className="flex gap-3">
         <img
           src={report.image}
           alt={report.title}
-          className="h-24 w-24 rounded-xl object-cover"
+          className="h-20 w-20 rounded-xl object-cover shrink-0"
         />
 
         <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-2">
-            <h2 className="line-clamp-2 text-sm font-extrabold leading-snug text-gray-900">
+          <div className="flex items-start justify-between gap-1.5">
+            <h2 className="line-clamp-1 text-xs font-extrabold text-gray-900">
               {report.title}
             </h2>
-
             <StatusBadge status={report.status} />
           </div>
 
-          <p className="mt-1 text-[11px] font-medium text-gray-400">
-            #{report.id}
+          <p className="font-mono text-[10px] font-bold text-red-700 mt-0.5">
+            {report.id}
           </p>
 
-          <div className="mt-1 flex items-center gap-1 text-[11px] font-medium text-gray-500">
-            <MapPin size={12} />
-            <span className="line-clamp-1">{report.location}</span>
+          <div className="mt-1 flex items-center gap-1 text-[11px] text-gray-500">
+            <MapPin size={11} className="text-red-600 shrink-0" />
+            <span className="line-clamp-1">{report.barangay || report.location}</span>
           </div>
 
-          <p className="mt-2 text-[11px] text-gray-400">
-            Updated: {report.updated}
+          <p className="mt-1.5 text-[10px] text-gray-400">
+            Updated: {report.submittedAt}
           </p>
         </div>
       </div>
@@ -216,45 +241,45 @@ function DesktopReportCard({ report, onSelect }) {
   return (
     <div
       onClick={onSelect}
-      className="flex cursor-pointer items-center gap-5 rounded-2xl border border-gray-100 bg-white p-4 transition hover:border-red-200 hover:bg-red-50/30"
+      className="flex cursor-pointer items-center gap-5 rounded-2xl border border-gray-100 bg-white p-4 transition hover:border-red-200 hover:bg-red-50/20"
     >
       <img
         src={report.image}
         alt={report.title}
-        className="h-24 w-32 rounded-2xl object-cover"
+        className="h-20 w-28 rounded-xl object-cover shrink-0"
       />
 
       <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-3">
-          <h2 className="text-lg font-extrabold text-gray-900">
+        <div className="flex items-center gap-2.5">
+          <h2 className="text-base font-extrabold text-gray-900">
             {report.title}
           </h2>
           <StatusBadge status={report.status} />
         </div>
 
-        <p className="mt-1 text-sm text-gray-400">#{report.id}</p>
+        <p className="font-mono text-xs font-bold text-red-700 mt-0.5">{report.id}</p>
 
-        <div className="mt-2 flex items-center gap-1 text-sm text-gray-500">
-          <MapPin size={15} />
-          <span>{report.location}</span>
+        <div className="mt-1.5 flex items-center gap-1 text-xs text-gray-500">
+          <MapPin size={13} className="text-red-600" />
+          <span>{report.barangay} · {report.location}</span>
         </div>
 
-        <p className="mt-2 text-sm text-gray-400">
-          Updated: {report.updated}
+        <p className="mt-1 text-[11px] text-gray-400">
+          Submitted: {report.submittedAt}
         </p>
       </div>
 
       <div className="text-right">
-        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-          Category
+        <p className="text-[10px] font-bold uppercase tracking-wide text-gray-400">
+          Tier 1 Receiver
         </p>
-        <p className="mt-1 font-bold text-gray-800">{report.category}</p>
+        <p className="text-xs font-extrabold text-zinc-900">{report.barangay}</p>
 
         <span
           onClick={onSelect}
-          className="mt-4 inline-flex cursor-pointer items-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700"
+          className="mt-3 inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-red-600 px-3.5 py-1.5 text-xs font-bold text-white transition hover:bg-red-700"
         >
-          View Details
+          Track Progress
         </span>
       </div>
     </div>
@@ -263,17 +288,22 @@ function DesktopReportCard({ report, onSelect }) {
 
 function StatusBadge({ status }) {
   const styles = {
-    "In Progress": "bg-yellow-100 text-yellow-700",
-    "Under Review": "bg-blue-100 text-blue-700",
-    Resolved: "bg-red-100 text-red-600",
-    Pending: "bg-gray-100 text-gray-600",
-    Closed: "bg-gray-200 text-gray-700",
+    "BARANGAY REVIEW": "bg-amber-100 text-amber-800",
+    SUBMITTED: "bg-zinc-100 text-zinc-700",
+    ACCEPTED: "bg-blue-100 text-blue-800",
+    "IN PROGRESS": "bg-sky-100 text-sky-800",
+    "INFORMATION REQUIRED": "bg-orange-100 text-orange-800",
+    "INFORMATION SUBMITTED": "bg-purple-100 text-purple-800",
+    RESOLVED: "bg-emerald-100 text-emerald-800",
+    "ESCALATED TO LGU": "bg-red-100 text-red-800",
+    "LGU ACCEPTED": "bg-indigo-100 text-indigo-800",
+    "LGU IN PROGRESS": "bg-cyan-100 text-cyan-800",
   };
 
   return (
     <span
-      className={`shrink-0 rounded-full px-3 py-1 text-[10px] font-extrabold ${
-        styles[status] || "bg-gray-100 text-gray-600"
+      className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-extrabold ${
+        styles[status] || "bg-gray-100 text-gray-700"
       }`}
     >
       {status}
@@ -281,7 +311,10 @@ function StatusBadge({ status }) {
   );
 }
 
-function ReportDetailModal({ report, onClose }) {
+function ReportDetailModal({ report, onClose, onInfoSubmitted }) {
+  const [residentText, setResidentText] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === "Escape") onClose();
@@ -294,19 +327,34 @@ function ReportDetailModal({ report, onClose }) {
     };
   }, [onClose]);
 
+  const handleInfoSubmit = (e) => {
+    e.preventDefault();
+    if (!residentText.trim()) return;
+    setSubmitting(true);
+    setTimeout(() => {
+      residentSubmitAdditionalInfo(report.id, { responseText: residentText.trim() });
+      setSubmitting(false);
+      setResidentText("");
+      if (onInfoSubmitted) onInfoSubmitted();
+    }, 600);
+  };
+
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 flex items-end justify-center bg-zinc-950/60 backdrop-blur-sm animate-fade-in sm:items-center sm:p-6"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-zinc-950/60 backdrop-blur-xs sm:items-center sm:p-6 animate-in fade-in"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-lg rounded-t-3xl bg-white p-6 shadow-2xl sm:rounded-3xl animate-modal-in"
+        className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-t-3xl bg-white p-6 shadow-2xl sm:rounded-3xl animate-in zoom-in-95"
       >
-        <div className="flex items-center justify-between">
+        {/* Header */}
+        <div className="flex items-center justify-between pb-3 border-b border-zinc-100">
           <div className="flex items-center gap-2">
             <StatusBadge status={report.status} />
-            <span className="font-mono text-xs text-gray-400">#{report.id}</span>
+            <span className="font-mono text-xs font-bold text-red-700">
+              {report.id}
+            </span>
           </div>
 
           <button
@@ -317,16 +365,16 @@ function ReportDetailModal({ report, onClose }) {
           </button>
         </div>
 
-        <h2 className="mt-3 text-lg font-extrabold text-gray-900">
+        <h2 className="mt-3 text-base font-extrabold text-gray-900 leading-snug">
           {report.title}
         </h2>
 
         <div className="mt-1 flex items-center gap-1 text-xs text-gray-500">
-          <MapPin size={13} />
-          <span>{report.location}</span>
+          <MapPin size={13} className="text-red-600" />
+          <span>{report.barangay} · {report.location}</span>
         </div>
 
-        <p className="mt-3 text-xs leading-5 text-gray-600">
+        <p className="mt-3 text-xs leading-relaxed text-gray-600 bg-zinc-50 p-3 rounded-xl border border-zinc-100">
           {report.description}
         </p>
 
@@ -334,25 +382,103 @@ function ReportDetailModal({ report, onClose }) {
           <img
             src={report.image}
             alt={report.title}
-            className="mt-4 h-44 w-full rounded-2xl object-cover"
+            className="mt-3.5 h-40 w-full rounded-2xl object-cover border border-zinc-200"
           />
         )}
 
-        <div className="mt-4 space-y-2 border-t border-zinc-100 pt-3">
-          <p className="text-[11px] font-extrabold uppercase tracking-wider text-gray-400">
-            Timeline
-          </p>
-          {report.timeline.map((step, index) => (
-            <div key={index} className="flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2">
-                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-red-100 text-[10px] font-bold text-red-600">
-                  <Check size={10} />
-                </span>
-                <span className="font-medium text-gray-700">{step.label}</span>
-              </div>
-              <span className="font-mono text-[11px] text-gray-400">{step.time}</span>
+        {/* Action needed if status === INFORMATION REQUIRED */}
+        {report.status === "INFORMATION REQUIRED" && (
+          <div className="mt-4 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-xs">
+            <div className="flex items-center gap-2 font-bold text-amber-900 mb-1">
+              <HelpCircle size={15} className="text-amber-700" />
+              <span>Barangay Requested Additional Information</span>
             </div>
-          ))}
+            <p className="text-zinc-700 mt-1 leading-relaxed">
+              &ldquo;{report.infoRequest?.messageToResident || "Please provide clearer landmark details."}&rdquo;
+            </p>
+
+            <form onSubmit={handleInfoSubmit} className="mt-3 space-y-2">
+              <textarea
+                rows={2}
+                required
+                value={residentText}
+                onChange={(e) => setResidentText(e.target.value)}
+                placeholder="Type your response or additional location details here..."
+                className="w-full rounded-xl border border-amber-300 bg-white p-2.5 text-xs text-zinc-900 outline-none focus:border-red-600 resize-none"
+              />
+              <button
+                type="submit"
+                disabled={submitting}
+                className="flex items-center gap-1.5 rounded-xl bg-amber-600 px-4 py-2 text-xs font-extrabold text-white hover:bg-amber-700 transition"
+              >
+                <Send size={13} />
+                {submitting ? "Sending..." : "Submit to Barangay"}
+              </button>
+            </form>
+          </div>
+        )}
+
+        {/* Complete Live 3-Tier Timeline Tracking */}
+        <div className="mt-5 border-t border-zinc-100 pt-4">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[10px] font-extrabold uppercase tracking-wider text-gray-400">
+              Live Multi-Tier Timeline
+            </p>
+            <span className="text-[10px] font-mono text-zinc-400">
+              Resident → Barangay → LGU
+            </span>
+          </div>
+
+          <div className="space-y-3">
+            {report.timeline?.map((step, index) => {
+              const isEscalated = step.step.toLowerCase().includes("escalat");
+              const isResolved = step.step.toLowerCase().includes("resolved");
+              const isWarning = step.step.toLowerCase().includes("unable");
+
+              return (
+                <div key={index} className="flex items-start gap-2.5 text-xs">
+                  <span
+                    className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold mt-0.5 ${
+                      isResolved
+                        ? "bg-emerald-100 text-emerald-700"
+                        : isEscalated
+                        ? "bg-red-100 text-red-700"
+                        : isWarning
+                        ? "bg-amber-100 text-amber-700"
+                        : "bg-red-100 text-red-600"
+                    }`}
+                  >
+                    {isResolved ? (
+                      <Check size={11} />
+                    ) : isEscalated ? (
+                      <Share2 size={10} />
+                    ) : (
+                      <Check size={10} />
+                    )}
+                  </span>
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-1">
+                      <p className="font-extrabold text-gray-900">{step.step}</p>
+                      <span className="font-mono text-[10px] text-gray-400">
+                        {step.time}
+                      </span>
+                    </div>
+                    {step.note && (
+                      <p className="text-[11px] text-gray-600 mt-0.5 leading-snug">
+                        {step.note}
+                      </p>
+                    )}
+                    {step.actor && (
+                      <p className="text-[10px] text-zinc-400 font-mono mt-0.5">
+                        By: {step.actor}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>

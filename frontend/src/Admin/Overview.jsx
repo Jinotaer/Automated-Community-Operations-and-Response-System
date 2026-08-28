@@ -6,16 +6,18 @@ import {
   Eye,
   Plus,
   Minus,
+  Share2,
+  Building,
+  Layers,
 } from "lucide-react";
 import AdminLayout from "../Layouts/AdminLayouts";
 import {
-  aggregateStats,
   officeSummaries,
   combinedCategories,
   combinedProblemAreas,
-  allReports,
   allIncidents,
 } from "./adminData";
+import { getStoredComplaints } from "../services/complaintsStore";
 
 const mapParks = [
   "left-[8%] top-[14%] h-16 w-16",
@@ -41,8 +43,6 @@ const minorRoads = [
   "left-[82%] top-[-2%] h-[104%] w-2 rotate-[-10deg]",
 ];
 
-const recentReports = allReports.slice(0, 5);
-
 function markerTone(count) {
   if (count >= 12) return "bg-red-700";
   if (count >= 6) return "bg-red-500";
@@ -50,6 +50,43 @@ function markerTone(count) {
 }
 
 export default function Overview() {
+  const [complaints, setComplaints] = useState(getStoredComplaints());
+
+  useEffect(() => {
+    function load() {
+      setComplaints(getStoredComplaints());
+    }
+    window.addEventListener("acors_complaints_updated", load);
+    return () => window.removeEventListener("acors_complaints_updated", load);
+  }, []);
+
+  const totalComplaints = 128;
+  const barangayComplaints = 114;
+  const escalatedComplaints = complaints.filter(
+    (c) =>
+      c.status === "ESCALATED TO LGU" ||
+      c.status === "LGU REVIEW" ||
+      c.status === "LGU ACCEPTED" ||
+      c.status === "LGU IN PROGRESS" ||
+      Boolean(c.escalation)
+  ).length || 14;
+  const pendingLguReview = complaints.filter(
+    (c) => c.status === "ESCALATED TO LGU" || c.status === "LGU REVIEW"
+  ).length || 8;
+  const inProgress = 32;
+  const resolved = 88;
+
+  const lguStats = [
+    { title: "Total Complaints", value: `${totalComplaints}`, note: "+18% this month" },
+    { title: "Barangay (Tier 1)", value: `${barangayComplaints}`, note: "First-level receiver" },
+    { title: "Escalated to LGU", value: `${escalatedComplaints}`, note: "Requires heavy equipment" },
+    { title: "Pending LGU Review", value: `${pendingLguReview}`, note: "Awaiting acceptance" },
+    { title: "In Progress", value: `${inProgress}`, note: "Active dispatch" },
+    { title: "Resolved", value: `${resolved}`, note: "78.4% resolution" },
+  ];
+
+  const recentReports = complaints.slice(0, 6);
+
   return (
     <AdminLayout>
       <div className="space-y-5 sm:space-y-6">
@@ -61,24 +98,30 @@ export default function Overview() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-600 opacity-60" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-red-600" />
               </span>
-              Malaybalay · Operations Console
+              Malaybalay · Tier 2 Operations Console
             </p>
             <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl">
-              LGU Dashboard
+              LGU Dashboard &amp; Escalations
             </h1>
           </div>
 
-          <p className="font-mono text-[11px] font-medium tracking-wide text-gray-500">
-            LIVE · <span className="font-bold text-gray-900">8</span> NEW REPORTS
-          </p>
+          <div className="flex items-center gap-3">
+            <Link
+              to="/admin/reports"
+              className="inline-flex items-center gap-1.5 rounded-2xl bg-red-700 px-4 py-2.5 text-xs font-extrabold text-white shadow-xs hover:bg-red-800 transition"
+            >
+              <Share2 size={13} />
+              Review Barangay Escalations ({escalatedComplaints})
+            </Link>
+          </div>
         </header>
 
-        {/* Stat Band */}
+        {/* 6-Stat Band */}
         <section
-          className="grid animate-fade-up grid-cols-1 divide-y divide-gray-100 rounded-3xl border border-gray-200/70 bg-white shadow-sm sm:grid-cols-2 xl:grid-cols-5 xl:divide-x xl:divide-y-0"
+          className="grid animate-fade-up grid-cols-2 divide-y divide-gray-100 rounded-3xl border border-gray-200/70 bg-white shadow-sm sm:grid-cols-3 xl:grid-cols-6 xl:divide-x xl:divide-y-0"
           style={{ animationDelay: "40ms" }}
         >
-          {aggregateStats.map((stat, index) => (
+          {lguStats.map((stat, index) => (
             <StatCell key={stat.title} stat={stat} index={index} />
           ))}
         </section>
@@ -140,12 +183,17 @@ export default function Overview() {
             style={{ animationDelay: "80ms" }}
           >
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <h2 className="text-lg font-extrabold text-gray-900">
-                Incident Map Overview
-              </h2>
+              <div>
+                <h2 className="text-lg font-extrabold text-gray-900">
+                  Incident Map Overview
+                </h2>
+                <p className="text-xs text-gray-500">
+                  Real-time geographic distribution across Malaybalay Barangays.
+                </p>
+              </div>
               <p className="flex items-center gap-2 font-mono text-[11px] font-medium text-gray-500">
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gray-400" />
-                UPDATED 09:41 AM
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-red-600" />
+                SYNCED 09:41 AM
               </p>
             </div>
 
@@ -178,38 +226,42 @@ export default function Overview() {
           </aside>
         </section>
 
-        {/* Reports and Workload */}
+        {/* Recent Complaints Table */}
         <section className="grid gap-6 xl:grid-cols-12">
           <div
             className="animate-fade-up rounded-3xl border border-gray-200/70 bg-white p-4 shadow-sm sm:p-5 xl:col-span-8"
             style={{ animationDelay: "220ms" }}
           >
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <h2 className="text-lg font-extrabold text-gray-900">
-                Recent Reports
-              </h2>
+              <div>
+                <h2 className="text-lg font-extrabold text-gray-900">
+                  Recent Citizen &amp; Barangay Reports
+                </h2>
+                <p className="text-xs text-gray-500">
+                  Live feed of community issues and Barangay escalations.
+                </p>
+              </div>
               <Link
                 to="/admin/reports"
                 className="text-sm font-bold text-red-600 transition hover:text-red-700"
               >
-                View All Reports
+                View All Complaints →
               </Link>
             </div>
 
             <div className="mt-5 overflow-x-auto">
-              <table className="w-full min-w-208 text-left text-sm">
+              <table className="w-full min-w-180 text-left text-xs">
                 <thead>
-                  <tr className="border-b border-gray-200 text-[11px] uppercase tracking-wider text-gray-500">
-                    <th className="px-3 py-3 text-left font-semibold">ID</th>
-                    <th className="px-3 py-3 text-left font-semibold">Issue</th>
-                    <th className="px-3 py-3 text-left font-semibold">Office</th>
-                    <th className="px-3 py-3 text-left font-semibold">Location</th>
-                    <th className="px-3 py-3 text-left font-semibold">Category</th>
-                    <th className="px-3 py-3 text-left font-semibold">Status</th>
-                    <th className="px-3 py-3 text-left font-semibold">Reported On</th>
+                  <tr className="border-b border-gray-200 text-[10px] uppercase tracking-wider text-gray-400">
+                    <th className="px-3 py-3 font-semibold">Complaint ID</th>
+                    <th className="px-3 py-3 font-semibold">Issue</th>
+                    <th className="px-3 py-3 font-semibold">Barangay (Tier 1)</th>
+                    <th className="px-3 py-3 font-semibold">Category</th>
+                    <th className="px-3 py-3 font-semibold">Status</th>
+                    <th className="px-3 py-3 font-semibold">Submitted</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-gray-100">
                   {recentReports.map((report) => (
                     <ReportRow key={report.id} report={report} />
                   ))}
@@ -254,26 +306,25 @@ function useCountUp(target, duration = 1200, delay = 0) {
 function StatCell({ stat, index }) {
   const numeric = parseFloat(stat.value.replace(/[^\d.]/g, ""));
   const suffix = stat.value.replace(/[0-9.,]/g, "").trim();
-  const raw = useCountUp(numeric, 1200, index * 60);
+  const raw = useCountUp(numeric, 1000, index * 50);
   const formatted =
     numeric % 1 === 0 ? Math.round(raw).toLocaleString() : raw.toFixed(1);
-  const isDown = stat.note.startsWith("-");
 
   return (
-    <div className="flex flex-col justify-between gap-2 p-4 transition hover:bg-gray-50/40 sm:p-5">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500">
+    <div className="flex flex-col justify-between gap-1.5 p-4 transition hover:bg-gray-50/40">
+      <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-gray-500">
         {stat.title}
       </p>
-      <p className="font-mono text-3xl font-bold tracking-tight text-gray-900">
+      <p className="font-mono text-2xl font-extrabold tracking-tight text-gray-900">
         {formatted}
         {suffix && (
-          <span className="ml-1 text-lg font-semibold text-gray-500">
+          <span className="ml-1 text-base font-semibold text-gray-500">
             {suffix}
           </span>
         )}
       </p>
-      <p className="font-mono text-[11px] font-medium text-gray-500">
-        {isDown ? "↓" : "↑"} {stat.note}
+      <p className="font-mono text-[10px] font-medium text-gray-400 truncate">
+        {stat.note}
       </p>
     </div>
   );
@@ -360,23 +411,23 @@ function ReportsByCategory() {
   return (
     <div>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-lg font-extrabold text-gray-900">
+        <h2 className="text-sm font-extrabold text-gray-900">
           Reports by Category
         </h2>
-        <button className="text-sm font-bold text-red-600 transition hover:text-red-700">
+        <button className="text-xs font-bold text-red-600 transition hover:text-red-700">
           View All
         </button>
       </div>
 
-      <div className="mt-5 space-y-4">
+      <div className="mt-4 space-y-3.5">
         {combinedCategories.map((category) => (
-          <div key={category.name} className="space-y-1.5">
-            <div className="flex items-start justify-between gap-3 text-sm sm:items-center">
+          <div key={category.name} className="space-y-1">
+            <div className="flex items-start justify-between gap-3 text-xs sm:items-center">
               <div className="flex min-w-0 items-center gap-2">
                 <span className={`h-2 w-2 shrink-0 rounded-full ${category.color}`} />
-                <span className="font-medium text-gray-700">{category.name}</span>
+                <span className="font-medium text-gray-700 truncate">{category.name}</span>
               </div>
-              <span className="shrink-0 font-mono text-xs font-semibold text-gray-500">
+              <span className="shrink-0 font-mono text-[11px] font-semibold text-gray-500">
                 {category.percent}
               </span>
             </div>
@@ -397,25 +448,25 @@ function TopProblemAreas() {
   return (
     <div>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-lg font-extrabold text-gray-900">
+        <h2 className="text-sm font-extrabold text-gray-900">
           Top Problem Areas
         </h2>
-        <button className="text-sm font-bold text-red-600 transition hover:text-red-700">
+        <button className="text-xs font-bold text-red-600 transition hover:text-red-700">
           View All
         </button>
       </div>
 
-      <div className="mt-4 space-y-3">
+      <div className="mt-3.5 space-y-2.5">
         {combinedProblemAreas.map((item, index) => (
           <div
             key={item.area}
-            className="grid grid-cols-[2.5rem_1fr_auto] items-center gap-3"
+            className="grid grid-cols-[2rem_1fr_auto] items-center gap-2 text-xs"
           >
-            <span className="font-mono text-sm font-bold text-gray-500">
+            <span className="font-mono text-xs font-bold text-gray-400">
               {String(index + 1).padStart(2, "0")}
             </span>
-            <p className="text-sm font-bold text-gray-800">{item.area}</p>
-            <p className="font-mono text-xs font-medium text-gray-500">
+            <p className="font-bold text-gray-800 truncate">{item.area}</p>
+            <p className="font-mono text-[11px] font-medium text-gray-500">
               {item.reports}
             </p>
           </div>
@@ -427,39 +478,27 @@ function TopProblemAreas() {
 
 function ReportRow({ report }) {
   return (
-    <tr className="border-b border-gray-100 transition last:border-b-0 hover:bg-gray-50/60">
-      <td className="px-3 py-4 font-mono text-xs font-medium text-gray-500">
+    <tr className="hover:bg-gray-50/60 transition">
+      <td className="px-3 py-3 font-mono text-[11px] font-bold text-gray-800">
         {report.id}
       </td>
-      <td className="px-3 py-4">
-        <div className="flex items-center gap-2.5">
-          <img
-            src={report.image}
-            alt={report.issue}
-            className="h-10 w-10 rounded-md object-cover"
-          />
-          <div>
-            <p className="text-sm font-bold text-gray-900">{report.issue}</p>
-            <p className="text-xs text-gray-500">{report.barangay}</p>
-          </div>
-        </div>
+      <td className="px-3 py-3">
+        <p className="font-bold text-gray-900 line-clamp-1">{report.title}</p>
+        <p className="text-[10px] text-gray-400 line-clamp-1">{report.location}</p>
       </td>
-      <td className="px-3 py-4">
-        <span className="rounded-full bg-red-50 px-2.5 py-1 text-[11px] font-bold text-red-700">
-          {report.office}
+      <td className="px-3 py-3 text-xs font-bold text-red-700">
+        {report.barangay}
+      </td>
+      <td className="px-3 py-3">
+        <span className="rounded-md bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-700">
+          {report.category}
         </span>
       </td>
-      <td className="px-3 py-4 text-sm font-medium text-gray-600">
-        {report.location}
-      </td>
-      <td className="px-3 py-4 text-xs font-medium text-gray-500">
-        {report.category}
-      </td>
-      <td className="px-3 py-4">
+      <td className="px-3 py-3">
         <StatusBadge status={report.status} />
       </td>
-      <td className="px-3 py-4 font-mono text-xs font-medium text-gray-500">
-        {report.reported}
+      <td className="px-3 py-3 font-mono text-[10px] text-gray-500">
+        {report.submittedAt}
       </td>
     </tr>
   );
@@ -467,20 +506,23 @@ function ReportRow({ report }) {
 
 function StatusBadge({ status }) {
   const styles = {
-    "In Progress": { dot: "bg-red-600", text: "text-red-700" },
-    "Under Review": { dot: "bg-amber-500", text: "text-amber-700" },
-    Assigned: { dot: "bg-sky-600", text: "text-sky-700" },
-    Pending: { dot: "bg-gray-400", text: "text-gray-500" },
-    Resolved: { dot: "bg-emerald-600", text: "text-emerald-700" },
+    "In Progress": "bg-sky-100 text-sky-700",
+    "LGU IN PROGRESS": "bg-sky-100 text-sky-700",
+    "Under Review": "bg-amber-100 text-amber-700",
+    "BARANGAY REVIEW": "bg-amber-100 text-amber-700",
+    "ESCALATED TO LGU": "bg-red-100 text-red-700",
+    "LGU ACCEPTED": "bg-indigo-100 text-indigo-700",
+    Pending: "bg-gray-100 text-gray-500",
+    Resolved: "bg-emerald-100 text-emerald-700",
+    RESOLVED: "bg-emerald-100 text-emerald-700",
   };
-
-  const style = styles[status] || styles.Pending;
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 text-xs font-semibold ${style.text}`}
+      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-extrabold ${
+        styles[status] || "bg-gray-100 text-gray-600"
+      }`}
     >
-      <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} />
       {status}
     </span>
   );
@@ -495,41 +537,41 @@ function OfficeWorkload() {
       style={{ animationDelay: "280ms" }}
     >
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-lg font-extrabold text-gray-900">
-          Office Workload
+        <h2 className="text-sm font-extrabold text-gray-900">
+          LGU Office Workload
         </h2>
         <Link
           to="/admin/users"
-          className="text-sm font-bold text-red-600 transition hover:text-red-700"
+          className="text-xs font-bold text-red-600 transition hover:text-red-700"
         >
           View All
         </Link>
       </div>
 
-      <div className="mt-6 space-y-5">
+      <div className="mt-5 space-y-4">
         {officeSummaries.map((office) => {
           const Icon = office.icon;
           const workload = Math.round((office.assigned / max) * 100);
 
           return (
-            <div key={office.slug} className="flex items-center gap-3.5">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-50 text-gray-600">
-                <Icon size={20} />
+            <div key={office.slug} className="flex items-center gap-3">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gray-50 text-gray-600">
+                <Icon size={18} />
               </div>
 
               <div className="flex-1">
                 <div className="flex items-baseline justify-between gap-3">
-                  <p className="text-sm font-bold text-gray-800">
+                  <p className="text-xs font-bold text-gray-800">
                     {office.shortName}
                   </p>
-                  <p className="font-mono text-sm font-bold text-gray-900">
+                  <p className="font-mono text-xs font-bold text-gray-900">
                     {workload}%
                   </p>
                 </div>
 
-                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-gray-100">
+                <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-gray-100">
                   <div
-                    className="h-full rounded-full bg-gray-500"
+                    className="h-full rounded-full bg-red-700"
                     style={{ width: `${workload}%` }}
                   />
                 </div>

@@ -372,9 +372,24 @@ export default function OfficeLogin() {
                 Use a demo account
               </button>
             </div>
+
+            <div className="mt-6 border-t border-zinc-200 pt-4 text-center text-xs text-zinc-500">
+              <span>Switch System Tier: </span>
+              <Link to="/home" className="font-bold text-red-600 hover:underline">
+                Resident App
+              </Link>
+              <span className="mx-2">•</span>
+              <Link to="/barangay/login" className="font-bold text-red-600 hover:underline">
+                Barangay Staff
+              </Link>
+              <span className="mx-2">•</span>
+              <Link to="/admin/login" className="font-bold text-red-600 hover:underline">
+                LGU Admin
+              </Link>
+            </div>
           </div>
 
-          <p className="mx-auto mt-12 w-full max-w-md text-center text-xs leading-5 text-zinc-400">
+          <p className="mx-auto mt-8 w-full max-w-md text-center text-xs leading-5 text-zinc-400">
             ACORS — Automated Community Operations &amp; Response System.
             <br />
             Restricted area. Authorized LGU personnel only.

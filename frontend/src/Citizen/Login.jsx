@@ -236,7 +236,7 @@ export default function Login() {
               Sign in with Google
             </button>
 
-            <p className="mt-8 text-center text-sm text-zinc-500">
+            <p className="mt-6 text-center text-sm text-zinc-500">
               New to ACORS?{" "}
               <Link
                 to="/register"
@@ -245,9 +245,24 @@ export default function Login() {
                 Create an account
               </Link>
             </p>
+
+            <div className="mt-6 border-t border-zinc-200 pt-4 text-center text-xs text-zinc-500">
+              <span>Government Portals: </span>
+              <Link to="/barangay/login" className="font-bold text-red-700 hover:underline">
+                Barangay Staff
+              </Link>
+              <span className="mx-2">•</span>
+              <Link to="/department/login" className="font-bold text-red-700 hover:underline">
+                LGU Offices
+              </Link>
+              <span className="mx-2">•</span>
+              <Link to="/admin/login" className="font-bold text-red-700 hover:underline">
+                LGU Admin
+              </Link>
+            </div>
           </div>
 
-          <p className="mx-auto mt-12 w-full max-w-md text-center text-xs leading-5 text-zinc-400">
+          <p className="mx-auto mt-8 w-full max-w-md text-center text-xs leading-5 text-zinc-400">
             ACORS — Automated Community Operations &amp; Response System.
           </p>
         </div>

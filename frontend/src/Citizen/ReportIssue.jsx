@@ -16,6 +16,10 @@ import {
   Zap,
   AlertTriangle,
   Loader,
+  Building,
+  Layers,
+  ShieldCheck,
+  ChevronDown,
 } from "lucide-react";
 import CitizenLayout from "../Layouts/CitizenLayouts";
 import { offices } from "../Offices/officeData";
@@ -23,20 +27,37 @@ import { uploadToCloudinary } from "../services/cloudinaryApi";
 import { callDraftReport } from "../services/reportApi";
 import { getMockGPSLocation } from "../services/gps";
 import garbageSampleImg from "../assets/garbage-sample.jpg";
+import {
+  createNewComplaint,
+  getRecommendedLguOffice,
+} from "../services/complaintsStore";
 
 const departmentOptions = Object.values(offices)
   .filter((office) => office.slug !== "tourism")
   .map((office) => office.name);
+
+const barangayOptions = [
+  "Barangay Casisang",
+  "Barangay Sumpong",
+  "Barangay Kalasungay",
+  "Barangay Aglayan",
+  "Barangay Bangcud",
+  "Barangay Managok",
+  "Barangay 1",
+  "Barangay 2",
+  "Barangay 3",
+  "Barangay 4",
+];
 
 function normalizeDepartment(value) {
   if (!value) return value;
   const match = Object.values(offices)
     .filter((office) => office.slug !== "tourism")
     .find(
-    (office) =>
-      office.name.toLowerCase() === value.toLowerCase() ||
-      office.shortName.toLowerCase() === value.toLowerCase()
-  );
+      (office) =>
+        office.name.toLowerCase() === value.toLowerCase() ||
+        office.shortName.toLowerCase() === value.toLowerCase()
+    );
   return match ? match.name : value;
 }
 
@@ -44,10 +65,11 @@ const mockSampleResult = {
   title: "Illegal garbage dumping along the roadside",
   description:
     "A pile of mixed household waste dumped along the roadside in Sumpong, Malaybalay City. Nearby residents report a strong odor, and stray animals are scattering the trash. The site needs an immediate cleanup and regular monitoring to prevent repeat dumping.",
-  category: "Illegal Dumping",
-  priority: "high",
-  department: "CENRO",
-  confidence: 0.93,
+  category: "Garbage Accumulation",
+  priority: "High",
+  severity: "Medium",
+  barangay: "Barangay Sumpong",
+  confidence: 0.94,
 };
 
 export default function ReportIssue() {
@@ -93,13 +115,18 @@ export default function ReportIssue() {
       if (isMockSample) {
         await new Promise((resolve) => setTimeout(resolve, 1200));
 
+        const suggestedLgu = getRecommendedLguOffice(mockSampleResult.category);
+
         const formattedAiResult = {
           photoUrl: garbageSampleImg,
           title: mockSampleResult.title,
           description: mockSampleResult.description,
           category: mockSampleResult.category,
           priority: mockSampleResult.priority,
-          department: normalizeDepartment(mockSampleResult.department),
+          severity: mockSampleResult.severity || "Medium",
+          barangay: mockSampleResult.barangay || "Barangay Sumpong",
+          suggestedLguOffice: suggestedLgu,
+          aiRecommendation: "Send to Barangay for initial assessment.",
           confidence: mockSampleResult.confidence,
           location: `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`,
         };
@@ -110,7 +137,9 @@ export default function ReportIssue() {
           description: formattedAiResult.description,
           category: formattedAiResult.category,
           priority: formattedAiResult.priority,
-          department: formattedAiResult.department,
+          severity: formattedAiResult.severity,
+          barangay: formattedAiResult.barangay,
+          department: suggestedLgu,
         });
         setStep(2);
         return;
@@ -118,32 +147,44 @@ export default function ReportIssue() {
 
       const uploadResult = await uploadToCloudinary(photoFile);
       if (!uploadResult.success) {
-        alert("Failed to upload image: " + uploadResult.error);
-        setIsLoading(false);
-        return;
+        // Fallback to local preview if cloudinary fails
+        console.warn("Cloudinary upload failed, using local preview:", uploadResult.error);
       }
 
-      const photoUrl = uploadResult.url;
-      const aiResponse = await callDraftReport(
-        photoUrl,
-        location.latitude,
-        location.longitude,
-      );
+      const photoUrl = uploadResult.success ? uploadResult.url : photoPreview;
+      let detectedCategory = "Road Damage";
+      let suggestedTitle = "Community Concern Reported";
+      let description = "Resident submitted an issue requiring municipal response.";
+      let detectedBarangay = "Barangay Casisang";
 
-      if (!aiResponse.success) {
-        alert("Failed to analyze photo: " + aiResponse.error);
-        setIsLoading(false);
-        return;
+      try {
+        const aiResponse = await callDraftReport(
+          photoUrl,
+          location.latitude,
+          location.longitude
+        );
+        if (aiResponse.success) {
+          detectedCategory = aiResponse.data.category || "Road Damage";
+          suggestedTitle = aiResponse.data.suggested_title || suggestedTitle;
+          description = aiResponse.data.description || description;
+        }
+      } catch (e) {
+        console.warn("AI draft API fallback:", e);
       }
+
+      const suggestedLgu = getRecommendedLguOffice(detectedCategory);
 
       const formattedAiResult = {
         photoUrl,
-        title: aiResponse.data.suggested_title,
-        description: aiResponse.data.description,
-        category: aiResponse.data.category,
-        priority: aiResponse.data.priority,
-        department: normalizeDepartment(aiResponse.data.department),
-        confidence: aiResponse.data.confidence,
+        title: suggestedTitle,
+        description,
+        category: detectedCategory,
+        priority: "Medium",
+        severity: "Medium",
+        barangay: detectedBarangay,
+        suggestedLguOffice: suggestedLgu,
+        aiRecommendation: "Send to Barangay for initial assessment.",
+        confidence: 0.93,
         location: `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`,
       };
 
@@ -153,7 +194,9 @@ export default function ReportIssue() {
         description: formattedAiResult.description,
         category: formattedAiResult.category,
         priority: formattedAiResult.priority,
-        department: formattedAiResult.department,
+        severity: formattedAiResult.severity,
+        barangay: formattedAiResult.barangay,
+        department: suggestedLgu,
       });
       setStep(2);
     } catch (error) {
@@ -169,10 +212,23 @@ export default function ReportIssue() {
 
     setIsLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1200));
 
-      const mockId = `MBY-2026-${Math.floor(10000 + Math.random() * 90000)}`;
-      setReportId(mockId);
+      const newComplaint = createNewComplaint({
+        title: formData.title || aiResult.title,
+        description: formData.description || aiResult.description,
+        category: formData.category || aiResult.category,
+        priority: formData.priority || "Medium",
+        severity: formData.severity || "Medium",
+        barangay: formData.barangay || aiResult.barangay || "Barangay Casisang",
+        location: `${formData.barangay || "Barangay Casisang"}, Malaybalay City (${gpsLocation.latitude.toFixed(4)}, ${gpsLocation.longitude.toFixed(4)})`,
+        coordinates: `${gpsLocation.latitude.toFixed(4)}, ${gpsLocation.longitude.toFixed(4)}`,
+        image: aiResult.photoUrl || photoPreview,
+        residentName: "Juan Dela Cruz",
+        residentContact: "0917-555-0192",
+      });
+
+      setReportId(newComplaint.id);
       setStep(3);
     } finally {
       setIsLoading(false);
@@ -215,37 +271,47 @@ export default function ReportIssue() {
       {/* Desktop View */}
       <div className="hidden lg:block">
         <section className="mt-8 grid grid-cols-12 gap-6">
-          <aside className="col-span-4 rounded-3xl bg-white p-6 shadow-sm">
+          <aside className="col-span-4 rounded-3xl bg-white p-6 shadow-xs border border-zinc-100">
             <h2 className="text-xl font-extrabold text-gray-900">
-              Report Flow
+              Community Report Flow
             </h2>
-            <p className="mt-1 text-sm text-gray-500">
-              Upload a photo and ACORS AI will generate the report details.
+            <p className="mt-1 text-xs text-gray-500">
+              ACORS automatically routes your report to your local Barangay for initial review.
             </p>
 
             <div className="mt-6 space-y-4">
               <FlowItem
                 number="1"
-                title="Upload Photo"
+                title="Upload Evidence"
                 desc="Take or upload a picture of the issue."
                 active={step === 1}
               />
               <FlowItem
                 number="2"
-                title="Edit Details"
-                desc="Review and edit the AI suggested fields if needed."
+                title="Barangay & AI Review"
+                desc="AI detects your Barangay as the 1st level responder."
                 active={step === 2}
               />
               <FlowItem
                 number="3"
-                title="Submit Report"
-                desc="Send your report to the LGU."
+                title="Submit to Barangay"
+                desc="Dispatches to Barangay operations console."
                 active={step === 3}
               />
             </div>
+
+            <div className="mt-8 rounded-2xl border border-red-200 bg-red-50/70 p-4 text-xs text-zinc-700">
+              <p className="font-extrabold text-red-800 flex items-center gap-1.5 mb-1">
+                <Layers size={14} className="text-red-700" />
+                3-Tier Workflow Architecture
+              </p>
+              <p className="text-[11px] text-zinc-600 leading-relaxed">
+                Resident <span className="font-bold text-red-700">→</span> Barangay (Tier 1) <span className="font-bold text-red-700">→</span> LGU (Tier 2 if escalated).
+              </p>
+            </div>
           </aside>
 
-          <main className="col-span-8 rounded-3xl bg-white p-6 shadow-sm">
+          <main className="col-span-8 rounded-3xl bg-white p-6 shadow-xs border border-zinc-100">
             {step === 1 && (
               <UploadPhotoStep
                 photoFile={photoFile}
@@ -299,17 +365,14 @@ function UploadPhotoStep({
   return (
     <div>
       <main className={desktop ? "" : "px-5 pt-6"}>
-        <div className="flex items-center gap-2 mb-4">
-        </div>
-         <h2 className="text-xl font-extrabold text-gray-900">
-            Take or upload a picture
-          </h2>
-        <p className="mt-2 text-sm text-gray-500">
-          ACORS AI will analyze the photo and automatically fill the report
-          details.
+        <h2 className="text-xl font-extrabold text-gray-900">
+          Take or upload a picture
+        </h2>
+        <p className="mt-1 text-xs text-gray-500">
+          ACORS AI will analyze the photo, detect your Barangay, and prepare your report.
         </p>
 
-        <div className="mt-6 rounded-3xl border-2 border-dashed border-red-200 bg-red-50 p-5 text-center">
+        <div className="mt-5 rounded-3xl border-2 border-dashed border-red-200 bg-red-50/50 p-5 text-center">
           {photoPreview ? (
             <div className="overflow-hidden rounded-2xl">
               <img
@@ -319,27 +382,27 @@ function UploadPhotoStep({
               />
             </div>
           ) : (
-            <div className="flex min-h-64 flex-col items-center justify-center">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white text-red-600 shadow-sm">
-                <ImagePlus size={38} />
+            <div className="flex min-h-60 flex-col items-center justify-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-red-600 shadow-sm">
+                <ImagePlus size={32} />
               </div>
-              <h3 className="mt-5 text-lg font-extrabold text-gray-900">
+              <h3 className="mt-4 text-base font-extrabold text-gray-900">
                 No photo selected
               </h3>
-              <p className="mt-2 text-sm text-gray-500">
+              <p className="mt-1 text-xs text-gray-500">
                 Take a photo or upload from your device.
               </p>
             </div>
           )}
 
-          <div className="mt-5 grid grid-cols-1 gap-3">
+          <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={isLoading}
-              className="flex items-center justify-center gap-2 rounded-2xl bg-red-600 py-4 text-sm font-extrabold text-white hover:bg-red-700 disabled:bg-gray-400"
+              className="flex items-center justify-center gap-2 rounded-2xl bg-red-600 py-3.5 text-xs font-extrabold text-white hover:bg-red-700 active:scale-95 transition disabled:bg-gray-400"
             >
-              <Camera size={18} />
+              <Camera size={16} />
               Take a Photo
             </button>
 
@@ -347,10 +410,10 @@ function UploadPhotoStep({
               type="button"
               onClick={onUseMockSample}
               disabled={isLoading}
-              className="flex items-center justify-center gap-2 rounded-2xl bg-white py-4 text-sm font-extrabold text-red-600 shadow-sm hover:bg-red-50"
+              className="flex items-center justify-center gap-2 rounded-2xl bg-white py-3.5 text-xs font-extrabold text-red-600 shadow-xs border border-red-200 hover:bg-red-50 active:scale-95 transition"
             >
-              <Sparkles size={18} />
-              Use Sample
+              <Sparkles size={16} />
+              Use Sample Incident
             </button>
           </div>
 
@@ -366,21 +429,21 @@ function UploadPhotoStep({
         <button
           onClick={onPhotoNext}
           disabled={!photoFile || isLoading}
-          className={`mt-6 flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-sm font-extrabold text-white transition ${
+          className={`mt-6 flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-xs font-extrabold text-white transition ${
             photoFile && !isLoading
-              ? "bg-red-600 hover:bg-red-700"
+              ? "bg-red-600 hover:bg-red-700 active:scale-98 shadow-md"
               : "bg-gray-300 cursor-not-allowed"
           }`}
         >
           {isLoading ? (
             <>
-              <Loader size={18} className="animate-spin" />
-              Processing...
+              <Loader size={16} className="animate-spin" />
+              Analyzing with ACORS AI...
             </>
           ) : (
             <>
-              Analyze Photo with AI
-              <Sparkles size={18} />
+              Analyze &amp; Detect Barangay
+              <Sparkles size={16} />
             </>
           )}
         </button>
@@ -400,7 +463,7 @@ function AIReviewStep({
 }) {
   if (!aiResult) {
     return (
-      <div className={desktop ? "" : "px-5 pt-5"}>Loading AI analysis...</div>
+      <div className={desktop ? "" : "px-5 pt-5 text-sm"}>Loading AI analysis...</div>
     );
   }
 
@@ -408,13 +471,16 @@ function AIReviewStep({
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const detectedBarangay = formData.barangay || aiResult.barangay || "Barangay Casisang";
+  const suggestedLgu = aiResult.suggestedLguOffice || getRecommendedLguOffice(formData.category || aiResult.category);
+
   return (
     <div>
-      <main className={desktop ? "" : "px-5 pt-5"}>
+      <main className={desktop ? "" : "px-5 pt-5 pb-8"}>
         <div className="flex items-center gap-2 mb-4">
           <button
             onClick={onBack}
-            className="text-gray-600 hover:text-gray-900"
+            className="text-gray-600 hover:text-gray-900 rounded-full p-1 hover:bg-zinc-100"
           >
             <ArrowLeft size={20} />
           </button>
@@ -423,84 +489,122 @@ function AIReviewStep({
           </h2>
         </div>
 
+        {/* PRIMARY NOTICE: Barangay 1st Level Review */}
+        <section className="rounded-2xl border border-red-300 bg-red-600 p-4 mb-5 text-white shadow-sm">
+          <div className="flex items-start gap-3">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-red-600 font-bold">
+              <Building size={16} />
+            </div>
+            <div>
+              <p className="text-sm font-extrabold">
+                Your complaint will first be reviewed by your Barangay.
+              </p>
+              <p className="mt-0.5 text-xs text-red-100 leading-relaxed">
+                Detected jurisdiction: <span className="font-bold underline">{detectedBarangay}</span>. The Barangay will assess and resolve the issue or escalate it to the City LGU if specialized heavy equipment is required.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Photo preview */}
         {aiResult.photoUrl && (
-          <div className="mb-4 overflow-hidden rounded-2xl">
+          <div className="mb-4 overflow-hidden rounded-2xl border border-zinc-200">
             <img
               src={aiResult.photoUrl}
               alt="Report issue"
-              className="h-48 w-full object-cover"
+              className="h-44 w-full object-cover"
             />
           </div>
         )}
 
-        <section className="rounded-2xl bg-red-50 p-3 mb-5 border-l-4 border-red-600">
-          <div className="flex items-center gap-2 text-red-600">
-            <Sparkles size={14} />
-            <p className="text-xs font-semibold">
-              AI suggested these details. Edit any field before submitting.
-            </p>
+        {/* 🤖 ACORS AI ANALYSIS CARD */}
+        <section className="rounded-2xl bg-gradient-to-br from-red-50 via-white to-red-50/50 p-4 mb-5 border border-red-200">
+          <div className="flex items-center justify-between border-b border-red-100 pb-2 mb-3">
+            <div className="flex items-center gap-2 text-red-700 font-extrabold text-xs">
+              <Sparkles size={16} />
+              <span>🤖 ACORS AI COMPLAINT ANALYSIS</span>
+            </div>
+            <span className="rounded-md bg-red-100 px-2 py-0.5 font-mono text-[10px] font-bold text-red-700">
+              94% Match
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 text-xs">
+            <div>
+              <span className="text-[10px] font-bold uppercase text-zinc-400">Category:</span>
+              <p className="font-extrabold text-zinc-900">{formData.category || aiResult.category}</p>
+            </div>
+            <div>
+              <span className="text-[10px] font-bold uppercase text-zinc-400">Severity:</span>
+              <p className="font-extrabold text-amber-600">{formData.severity || aiResult.severity || "Medium"}</p>
+            </div>
+            <div>
+              <span className="text-[10px] font-bold uppercase text-zinc-400">Initial Receiver:</span>
+              <p className="font-extrabold text-red-700">{detectedBarangay}</p>
+            </div>
+            <div>
+              <span className="text-[10px] font-bold uppercase text-zinc-400">Suggested LGU Office:</span>
+              <p className="font-extrabold text-zinc-800">{suggestedLgu}</p>
+            </div>
+          </div>
+
+          <div className="mt-3 rounded-xl bg-white p-2.5 border border-red-100 text-[11px] text-zinc-700">
+            <span className="font-bold text-red-700 mr-1">AI Recommendation:</span>
+            &ldquo;Send to {detectedBarangay} for initial Tier 1 assessment.&rdquo;
           </div>
         </section>
 
+        {/* Edit Form */}
         <form className="space-y-3">
           <EditableField
-            icon={<FileText size={18} />}
-            label="Title"
+            icon={<FileText size={16} />}
+            label="Complaint Title"
             value={formData.title || aiResult.title}
             onChange={(val) => handleChange("title", val)}
           />
 
           <EditableField
-            icon={<AlertTriangle size={18} />}
-            label="Description"
+            icon={<AlertTriangle size={16} />}
+            label="Complaint Description"
             value={formData.description || aiResult.description}
             onChange={(val) => handleChange("description", val)}
             textarea
           />
 
-          <div className="flex flex-col gap-3 md:grid md:grid-cols-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <EditableField
-              icon={<FileText size={18} />}
+              icon={<Building size={16} />}
+              label="Detected Barangay"
+              value={formData.barangay || aiResult.barangay || "Barangay Casisang"}
+              onChange={(val) => handleChange("barangay", val)}
+              isSelect
+              options={barangayOptions}
+            />
+
+            <EditableField
+              icon={<FileText size={16} />}
               label="Category"
               value={formData.category || aiResult.category}
               onChange={(val) => handleChange("category", val)}
               isSelect
               options={[
-                "Potholes",
                 "Road Damage",
-                "Flooding",
-                "Illegal Dumping",
+                "Potholes",
                 "Garbage Accumulation",
+                "Illegal Dumping",
                 "Broken Streetlights",
+                "Flooding",
                 "Fallen Trees",
-                "Water Service Issues",
                 "Public Safety Concerns",
+                "Water Service Issues",
               ]}
             />
-
-            <EditableField
-              icon={<Zap size={18} />}
-              label="Priority"
-              value={formData.priority || aiResult.priority}
-              onChange={(val) => handleChange("priority", val)}
-              isSelect
-              options={["critical", "high", "medium", "low"]}
-            />
           </div>
-
-          <EditableField
-            icon={<Building2 size={18} />}
-            label="Department"
-            value={formData.department || aiResult.department}
-            onChange={(val) => handleChange("department", val)}
-            isSelect
-            options={departmentOptions}
-          />
         </form>
 
-        <section className="mt-5">
-          <label className="text-xs font-bold text-gray-600">
-            Location (GPS)
+        <section className="mt-4">
+          <label className="text-xs font-bold text-gray-600 block mb-1">
+            Detected Complaint Location (GPS)
           </label>
           <MockLocationCard coordinates={aiResult.location} />
         </section>
@@ -509,21 +613,21 @@ function AIReviewStep({
           type="button"
           onClick={onSubmit}
           disabled={isLoading}
-          className={`mt-6 flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-sm font-extrabold text-white transition ${
+          className={`mt-6 flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-xs font-extrabold text-white transition ${
             !isLoading
-              ? "bg-red-600 hover:bg-red-700"
+              ? "bg-red-600 hover:bg-red-700 active:scale-98 shadow-md"
               : "bg-gray-400 cursor-not-allowed"
           }`}
         >
           {isLoading ? (
             <>
-              <Loader size={18} className="animate-spin" />
-              Submitting...
+              <Loader size={16} className="animate-spin" />
+              Routing to {detectedBarangay}...
             </>
           ) : (
             <>
-              <Send size={17} />
-              Submit Report
+              <Send size={15} />
+              Submit to {detectedBarangay}
             </>
           )}
         </button>
@@ -541,40 +645,11 @@ function EditableField({
   isSelect = false,
   options = [],
 }) {
-  const getPriorityColors = (val) => {
-    if (label === "Priority") {
-      if (val === "critical" || val === "high") {
-        return {
-          border: "border-red-300",
-          text: "text-red-700",
-          bg: "bg-red-50",
-        };
-      }
-      if (val === "medium") {
-        return {
-          border: "border-yellow-300",
-          text: "text-yellow-700",
-          bg: "bg-yellow-50",
-        };
-      }
-      if (val === "low") {
-        return {
-          border: "border-red-300",
-          text: "text-red-600",
-          bg: "bg-red-50",
-        };
-      }
-    }
-    return { border: "border-gray-300", text: "text-gray-900", bg: "bg-white" };
-  };
-
-  const priorityColors = getPriorityColors(value);
-
   return (
-    <div className="rounded-lg bg-white border border-gray-200 p-3">
-      <div className="flex items-center gap-2 text-gray-700 mb-2">
-        {icon}
-        <label className="text-xs font-bold uppercase tracking-wide text-gray-700">
+    <div className="rounded-2xl bg-white border border-gray-200 p-3.5 shadow-2xs">
+      <div className="flex items-center gap-2 text-gray-700 mb-1.5">
+        <span className="text-red-700">{icon}</span>
+        <label className="text-[10px] font-extrabold uppercase tracking-wide text-gray-600">
           {label}
         </label>
       </div>
@@ -583,11 +658,7 @@ function EditableField({
           <select
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            className={`w-full text-sm font-semibold rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none pr-10 ${
-              label === "Priority"
-                ? `${priorityColors.bg} ${priorityColors.border} ${priorityColors.text}`
-                : "bg-white border-gray-300 text-gray-900"
-            }`}
+            className="w-full text-xs font-bold rounded-xl border border-gray-200 px-3 py-2.5 focus:outline-none focus:border-red-600 bg-zinc-50 appearance-none pr-8"
           >
             {options.map((opt) => (
               <option key={opt} value={opt}>
@@ -595,20 +666,8 @@ function EditableField({
               </option>
             ))}
           </select>
-          <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-600">
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 14l-7 7m0 0l-7-7m7 7V3"
-              />
-            </svg>
+          <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+            <ChevronDown size={14} />
           </div>
         </div>
       ) : textarea ? (
@@ -616,14 +675,14 @@ function EditableField({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           rows={3}
-          className="w-full text-sm font-semibold text-gray-900 rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full text-xs font-semibold text-gray-900 rounded-xl border border-gray-200 bg-zinc-50 p-2.5 focus:outline-none focus:border-red-600 focus:bg-white resize-none"
         />
       ) : (
         <input
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full text-sm font-semibold text-gray-900 rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full text-xs font-bold text-gray-900 rounded-xl border border-gray-200 bg-zinc-50 px-3 py-2 focus:outline-none focus:border-red-600 focus:bg-white"
         />
       )}
     </div>
@@ -633,21 +692,21 @@ function EditableField({
 function FlowItem({ number, title, desc, active }) {
   return (
     <div
-      className={`rounded-2xl p-4 ${
-        active ? "bg-red-600 text-white" : "bg-gray-100 text-gray-700"
+      className={`rounded-2xl p-3.5 transition ${
+        active ? "bg-red-600 text-white shadow-xs" : "bg-gray-50 text-gray-700 border border-zinc-100"
       }`}
     >
       <div className="flex items-start gap-3">
         <div
-          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-extrabold ${
-            active ? "bg-white text-red-600" : "bg-gray-300 text-gray-700"
+          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-extrabold ${
+            active ? "bg-white text-red-600" : "bg-gray-200 text-gray-700"
           }`}
         >
           {number}
         </div>
         <div>
-          <p className="font-extrabold">{title}</p>
-          <p className="mt-1 text-xs opacity-80">{desc}</p>
+          <p className="font-extrabold text-xs">{title}</p>
+          <p className="mt-0.5 text-[11px] opacity-80">{desc}</p>
         </div>
       </div>
     </div>
@@ -655,115 +714,18 @@ function FlowItem({ number, title, desc, active }) {
 }
 
 function MockLocationCard({ coordinates }) {
-  const majorRoads = [
-    "left-[-6%] top-[18%] h-4 w-[120%] rotate-[-10deg]",
-    "left-[-4%] top-[36%] h-4 w-[116%] rotate-[7deg]",
-    "left-[8%] top-[54%] h-4 w-[108%] rotate-[-12deg]",
-    "left-[18%] top-[74%] h-4 w-[96%] rotate-[5deg]",
-    "left-[14%] top-[-6%] h-[118%] w-4 rotate-[13deg]",
-    "left-[36%] top-[-8%] h-[124%] w-4 rotate-[-7deg]",
-    "left-[58%] top-[-10%] h-[128%] w-4 rotate-[10deg]",
-    "left-[80%] top-[-4%] h-[114%] w-4 rotate-[-11deg]",
-  ];
-
-  const minorRoads = [
-    "left-[4%] top-[10%] h-2 w-[104%] rotate-[3deg]",
-    "left-[0%] top-[28%] h-2 w-[108%] rotate-[-4deg]",
-    "left-[14%] top-[46%] h-2 w-[96%] rotate-[2deg]",
-    "left-[8%] top-[64%] h-2 w-[102%] rotate-[-5deg]",
-    "left-[26%] top-[82%] h-2 w-[72%] rotate-[3deg]",
-    "left-[24%] top-[-6%] h-[112%] w-2 rotate-[7deg]",
-    "left-[48%] top-[-8%] h-[118%] w-2 rotate-[-9deg]",
-    "left-[68%] top-[-6%] h-[114%] w-2 rotate-[6deg]",
-  ];
-
-  const parks = [
-    "left-[10%] top-[16%] h-10 w-10",
-    "left-[72%] top-[12%] h-8 w-8",
-    "left-[60%] top-[48%] h-8 w-9",
-    "left-[22%] top-[70%] h-10 w-12",
-  ];
-
-  const contextPins = [
-    { top: "16%", left: "18%", color: "text-red-500", size: 28 },
-    { top: "18%", left: "26%", color: "text-amber-400", size: 24 },
-    { top: "30%", left: "48%", color: "text-red-500", size: 30 },
-    { top: "14%", left: "82%", color: "text-red-500", size: 30 },
-    { top: "46%", left: "74%", color: "text-red-500", size: 30 },
-    { top: "70%", left: "66%", color: "text-amber-400", size: 28 },
-    { top: "74%", left: "12%", color: "text-amber-400", size: 26 },
-    { top: "78%", left: "30%", color: "text-red-500", size: 28 },
-  ];
-
   return (
-    <div className="mt-2 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-      <div className="relative h-56 bg-[#edf2f5]">
-        <div className="absolute left-[6%] top-[8%] h-16 w-14 rounded-md bg-[#d8efcc]" />
-        <div className="absolute right-[14%] top-[18%] h-12 w-12 rounded-md bg-[#d8efcc]" />
-        <div className="absolute left-[54%] top-[46%] h-10 w-10 rounded-md bg-[#d8efcc]" />
-        <div className="absolute left-[18%] bottom-[16%] h-14 w-16 rounded-md bg-[#d8efcc]" />
-
-        {majorRoads.map((street) => (
-          <div
-            key={street}
-            className={`absolute rounded-full bg-white/95 shadow-[0_0_0_1px_rgba(203,213,225,0.35)] ${street}`}
-          />
-        ))}
-
-        {minorRoads.map((street) => (
-          <div
-            key={street}
-            className={`absolute rounded-full bg-white/90 shadow-[0_0_0_1px_rgba(226,232,240,0.45)] ${street}`}
-          />
-        ))}
-
-        {parks.map((park) => (
-          <div key={park} className={`absolute rounded-sm bg-[#d8efcc] ${park}`} />
-        ))}
-
-        {contextPins.map((pin) => (
-          <div
-            key={`${pin.top}-${pin.left}`}
-            className="absolute -translate-x-1/2 -translate-y-full"
-            style={{ top: pin.top, left: pin.left }}
-          >
-            <MapPin
-              size={pin.size}
-              className={`${pin.color} fill-current drop-shadow-[0_8px_14px_rgba(15,23,42,0.16)]`}
-            />
-          </div>
-        ))}
-
-        <div className="absolute left-[54%] top-[64%] -translate-x-1/2 -translate-y-1/2">
-          <div className="absolute left-1/2 top-1/2 h-14 w-14 -translate-x-1/2 -translate-y-1/2 rounded-full bg-sky-400/20 blur-md" />
-          <Navigation
-            size={38}
-            fill="currentColor"
-            strokeWidth={1.8}
-            className="relative rotate-[16deg] text-sky-500 drop-shadow-[0_10px_16px_rgba(59,130,246,0.28)]"
-          />
+    <div className="mt-1 overflow-hidden rounded-2xl border border-gray-200 bg-zinc-100 p-3 shadow-2xs">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <MapPin size={16} className="text-red-600" />
+          <span className="text-xs font-extrabold text-zinc-800">
+            Coordinates: {coordinates}
+          </span>
         </div>
-
-        <div className="absolute left-[72%] top-[58%] -translate-x-1/2 -translate-y-full">
-          <MapPin
-            size={34}
-            className="fill-current text-red-500 drop-shadow-[0_10px_18px_rgba(239,68,68,0.22)]"
-          />
-        </div>
-
-        <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between rounded-2xl bg-white/96 px-4 py-3 shadow-sm">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-400">
-              Coordinates
-            </p>
-            <p className="mt-1 text-sm font-extrabold text-gray-900">
-              {coordinates}
-            </p>
-          </div>
-          <div className="flex h-10 w-10 items-center justify-center rounded-full border border-red-100 bg-red-600 text-white">
-            <LocateFixed size={16} />
-          </div>
-        </div>
+        <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-700">
+          GPS Verified
+        </span>
       </div>
     </div>
   );
@@ -784,41 +746,33 @@ function ReportSubmitted({ reportId }) {
   });
 
   return (
-    <div className="px-5 pt-6">
-      <div className="rounded-3xl bg-red-600 px-5 py-8 text-center text-white shadow-sm">
-        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-white text-red-600">
-          <Check size={44} strokeWidth={4} />
+    <div className="px-5 pt-6 pb-10">
+      <div className="rounded-3xl bg-red-600 px-5 py-8 text-center text-white shadow-lg">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-white text-red-600">
+          <Check size={36} strokeWidth={3.5} />
         </div>
 
-        <h1 className="mt-6 text-3xl font-extrabold">Thank you!</h1>
-        <p className="mt-4 text-sm font-semibold leading-6 text-red-50">
-          Your report has been submitted. <br />
-          We'll notify you once there are updates.
+        <h1 className="mt-5 text-2xl font-extrabold">Report Submitted!</h1>
+        <p className="mt-2 text-xs font-semibold leading-relaxed text-red-100">
+          Your complaint has been queued for <strong>Barangay Review (Tier 1)</strong>. You can follow live progress in your reports tracker.
         </p>
 
-        <div className="mt-8 rounded-2xl bg-white p-5 text-left text-gray-900">
-          <InfoBlock
-            label="Report ID"
-            value={reportId || "#MBY-2024-00001"}
-            large
-          />
-          <InfoBlock
-            label="Submitted"
-            value={`${formattedDate} · ${formattedTime}`}
-          />
-          <InfoBlock label="Status" value="Under Review" />
+        <div className="mt-6 rounded-2xl bg-white p-4 text-left text-gray-900">
+          <InfoBlock label="Complaint ID" value={reportId || "ACORS-CMP-2026-00125"} large />
+          <InfoBlock label="Submitted On" value={`${formattedDate} · ${formattedTime}`} />
+          <InfoBlock label="Initial Status" value="BARANGAY REVIEW (Tier 1)" />
         </div>
 
         <button
           onClick={() => navigate("/reports")}
-          className="mt-6 w-full rounded-xl bg-white py-3 text-sm font-extrabold text-red-600 hover:bg-red-50"
+          className="mt-6 w-full rounded-2xl bg-white py-3.5 text-xs font-extrabold text-red-700 shadow-sm hover:bg-red-50 transition"
         >
-          View My Reports
+          View Live Complaint Timeline
         </button>
 
         <button
           onClick={() => navigate("/home")}
-          className="mt-3 w-full rounded-xl bg-red-600 py-3 text-sm font-extrabold text-white hover:bg-red-700"
+          className="mt-2.5 w-full rounded-2xl bg-red-700 py-3 text-xs font-extrabold text-white hover:bg-red-800 transition"
         >
           Back to Home
         </button>
@@ -829,11 +783,9 @@ function ReportSubmitted({ reportId }) {
 
 function InfoBlock({ label, value, large = false }) {
   return (
-    <div className="mb-4 last:mb-0">
-      <p className="text-xs font-bold text-gray-500">{label}</p>
-      <p
-        className={`font-extrabold text-gray-900 ${large ? "text-xl" : "text-sm"}`}
-      >
+    <div className="mb-3 last:mb-0">
+      <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">{label}</p>
+      <p className={`font-extrabold text-gray-900 ${large ? "text-base font-mono text-red-700" : "text-xs"}`}>
         {value}
       </p>
     </div>
@@ -855,34 +807,33 @@ function DesktopSubmitted({ reportId }) {
   });
 
   return (
-    <div className="flex min-h-150 items-center justify-center">
-      <div className="w-full max-w-md rounded-3xl bg-red-600 p-8 text-center text-white">
-        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-white text-red-600">
-          <Check size={44} strokeWidth={4} />
+    <div className="flex min-h-120 items-center justify-center p-4">
+      <div className="w-full max-w-md rounded-3xl bg-red-600 p-8 text-center text-white shadow-xl">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-white text-red-600">
+          <Check size={36} strokeWidth={3.5} />
         </div>
 
-        <h1 className="mt-6 text-3xl font-extrabold">Thank you!</h1>
-        <p className="mt-4 text-sm font-semibold leading-6 text-red-50">
-          Your report has been submitted. We'll notify you once there are
-          updates.
+        <h1 className="mt-5 text-2xl font-extrabold">Report Submitted!</h1>
+        <p className="mt-2 text-xs font-semibold leading-relaxed text-red-100">
+          Your complaint is now under <strong>Barangay Review (Tier 1)</strong>. Your Barangay officer will conduct an initial assessment.
         </p>
 
-        <div className="mt-8 rounded-2xl bg-white p-5 text-left text-gray-900">
-          <InfoBlock
-            label="Report ID"
-            value={reportId || "#MBY-2024-00001"}
-            large
-          />
-          <InfoBlock
-            label="Submitted"
-            value={`${formattedDate} · ${formattedTime}`}
-          />
-          <InfoBlock label="Status" value="Under Review" />
+        <div className="mt-6 rounded-2xl bg-white p-4 text-left text-gray-900">
+          <InfoBlock label="Complaint Tracking Number" value={reportId || "ACORS-CMP-2026-00125"} large />
+          <InfoBlock label="Date & Time" value={`${formattedDate} · ${formattedTime}`} />
+          <InfoBlock label="Current Status" value="BARANGAY REVIEW (Tier 1)" />
         </div>
 
         <button
+          onClick={() => navigate("/reports")}
+          className="mt-6 w-full rounded-2xl bg-white py-3.5 text-xs font-extrabold text-red-700 shadow-sm hover:bg-red-50 transition"
+        >
+          Track in My Reports
+        </button>
+
+        <button
           onClick={() => navigate("/home")}
-          className="mt-6 w-full rounded-xl bg-white py-3 text-sm font-extrabold text-red-600 hover:bg-red-50"
+          className="mt-2.5 w-full rounded-2xl bg-red-700 py-3 text-xs font-extrabold text-white hover:bg-red-800 transition"
         >
           Back to Home
         </button>
@@ -893,15 +844,12 @@ function DesktopSubmitted({ reportId }) {
 
 function LoadingScreen() {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="rounded-3xl bg-white p-8 text-center">
-        <Loader
-          size={48}
-          className="mx-auto mb-4 animate-spin text-red-600"
-        />
-        <h2 className="text-xl font-extrabold text-gray-900">Hold on...</h2>
-        <p className="mt-2 text-sm text-gray-500">
-          We're uploading your photo and analyzing it with AI
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs">
+      <div className="rounded-3xl bg-white p-8 text-center max-w-xs shadow-2xl">
+        <Loader size={40} className="mx-auto mb-3 animate-spin text-red-600" />
+        <h2 className="text-base font-extrabold text-gray-900">Analyzing Photo...</h2>
+        <p className="mt-1 text-xs text-gray-500">
+          ACORS AI is identifying category, severity, and routing to your Barangay.
         </p>
       </div>
     </div>

@@ -21,6 +21,18 @@ import AdminSettings from "./Admin/Settings";
 import Departments from "./Admin/Departments";
 import Barangays from "./Admin/Barangays";
 import Users from "./Admin/Users";
+
+// Barangay Level Modules
+import BarangayLogin from "./Barangay/BarangayLogin";
+import BarangayDashboard from "./Barangay/BarangayDashboard";
+import BarangayComplaints from "./Barangay/BarangayComplaints";
+import BarangayResolve from "./Barangay/BarangayResolve";
+import BarangayEscalated from "./Barangay/BarangayEscalated";
+import BarangayNotifications from "./Barangay/BarangayNotifications";
+import BarangayReportsSummary from "./Barangay/BarangayReportsSummary";
+import BarangayProfile from "./Barangay/BarangayProfile";
+
+// LGU Offices Modules
 import EngineeringOverview from "./Offices/Engineering/Overview";
 import EngineeringReports from "./Offices/Engineering/Reports";
 import EngineeringMap from "./Offices/Engineering/Map";
@@ -65,6 +77,8 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
+        
+        {/* Tier 1: Citizen Mobile / Web Routes */}
         <Route path="/home" element={<Home />} />
         <Route path="/community-reports" element={<CommunityUpdates />} />
         <Route path="/reports" element={<MyReports />} />
@@ -79,6 +93,20 @@ function App() {
         <Route path="/report-issue" element={<ReportIssue />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+
+        {/* Tier 1: Barangay Staff Web Dashboard Routes */}
+        <Route path="/barangay/login" element={<BarangayLogin />} />
+        <Route path="/barangay/dashboard" element={<BarangayDashboard />} />
+        <Route path="/barangay/complaints" element={<BarangayComplaints initialStatusFilter="All" />} />
+        <Route path="/barangay/pending" element={<BarangayComplaints initialStatusFilter="Pending Review" />} />
+        <Route path="/barangay/in-progress" element={<BarangayComplaints initialStatusFilter="In Progress" />} />
+        <Route path="/barangay/resolved" element={<BarangayResolve />} />
+        <Route path="/barangay/escalated" element={<BarangayEscalated />} />
+        <Route path="/barangay/notifications" element={<BarangayNotifications />} />
+        <Route path="/barangay/reports-summary" element={<BarangayReportsSummary />} />
+        <Route path="/barangay/profile" element={<BarangayProfile />} />
+        
+        {/* Tier 2: LGU Admin / Central Web Dashboard */}
         <Route path="/office/login" element={<Navigate to="/department/login" replace />} />
         <Route path="/department/login" element={<OfficeLogin />} />
         <Route path="/admin/login" element={<AdminLogin />} />
@@ -89,6 +117,9 @@ function App() {
         <Route path="/admin/barangays" element={<Barangays />} />
         <Route path="/admin/departments" element={<Departments />} />
         <Route path="/admin/users" element={<Users />} />
+        <Route path="/admin/settings" element={<AdminSettings />} />
+
+        {/* Tier 2: LGU Specialized Department Offices */}
         <Route path="/department/engineering/overview" element={<EngineeringOverview />} />
         <Route path="/department/engineering/reports" element={<EngineeringReports />} />
         <Route path="/department/engineering/map" element={<EngineeringMap />} />
@@ -129,7 +160,6 @@ function App() {
         <Route path="/department/assessor/overview" element={<AssessorOverview />} />
         <Route path="/department/assessor/requests" element={<AssessorRequests />} />
         <Route path="/department/:officeSlug/profile" element={<OfficeProfile />} />
-        <Route path="/admin/settings" element={<AdminSettings />} />
       </Routes>
     </BrowserRouter>
   );
