@@ -47,7 +47,9 @@ export default function BarangayComplaints({ initialStatusFilter = "All" }) {
 
   // Modals state
   const [activeModal, setActiveModal] = useState(null); // 'requestInfo' | 'inProgress' | 'resolve' | 'escalate' | null
-  const [infoReason, setInfoReason] = useState("Incomplete details or unclear photo");
+  const [infoReason, setInfoReason] = useState(
+    "Incomplete details or unclear photo",
+  );
   const [infoMessage, setInfoMessage] = useState("");
   const [assignedStaff, setAssignedStaff] = useState("");
   const [actionPlan, setActionPlan] = useState("");
@@ -84,7 +86,7 @@ export default function BarangayComplaints({ initialStatusFilter = "All" }) {
     const isThisBarangay =
       c.barangay.toLowerCase().includes(session.slug.toLowerCase()) ||
       session.barangayName.toLowerCase().includes(c.barangay.toLowerCase());
-    
+
     const isEscalated =
       c.status === "ESCALATED TO LGU" ||
       c.status === "LGU REVIEW" ||
@@ -114,14 +116,20 @@ export default function BarangayComplaints({ initialStatusFilter = "All" }) {
         c.status === "BARANGAY REVIEW" ||
         c.status === "SUBMITTED" ||
         c.status === "INFORMATION SUBMITTED";
-    } else if (statusFilter === "In Progress" || statusFilter === "IN PROGRESS") {
+    } else if (
+      statusFilter === "In Progress" ||
+      statusFilter === "IN PROGRESS"
+    ) {
       matchesStatus =
         c.status === "IN PROGRESS" ||
         c.status === "ACCEPTED" ||
         c.status === "INFORMATION REQUIRED";
     } else if (statusFilter === "Resolved" || statusFilter === "RESOLVED") {
       matchesStatus = c.status === "RESOLVED";
-    } else if (statusFilter === "Escalated to LGU" || statusFilter === "ESCALATED") {
+    } else if (
+      statusFilter === "Escalated to LGU" ||
+      statusFilter === "ESCALATED"
+    ) {
       matchesStatus =
         c.status === "ESCALATED TO LGU" ||
         c.status === "LGU REVIEW" ||
@@ -147,7 +155,7 @@ export default function BarangayComplaints({ initialStatusFilter = "All" }) {
     if (!activeComplaint) return;
     const updated = barangayAcceptComplaint(
       activeComplaint.id,
-      `${session.staffName} (${session.barangayName})`
+      `${session.staffName} (${session.barangayName})`,
     );
     setSelectedComplaint(updated);
   };
@@ -199,7 +207,9 @@ export default function BarangayComplaints({ initialStatusFilter = "All" }) {
     const updated = barangayEscalateToLgu(activeComplaint.id, {
       reason: escalateReason,
       barangayAssessment: escalateAssessment.trim(),
-      staffNotes: escalateStaffNotes.trim() || "Forwarded to LGU for technical intervention.",
+      staffNotes:
+        escalateStaffNotes.trim() ||
+        "Forwarded to LGU for technical intervention.",
       recommendedOffice,
       staffName: `${session.staffName} (${session.barangayName})`,
     });
@@ -281,8 +291,12 @@ export default function BarangayComplaints({ initialStatusFilter = "All" }) {
 
           <div className="flex items-center justify-between border-t border-zinc-100 pt-3 text-xs text-zinc-500">
             <p>
-              Showing <span className="font-bold text-zinc-900">{filtered.length}</span> complaints for{" "}
-              <span className="font-bold text-red-700">{session.barangayName}</span>
+              Showing{" "}
+              <span className="font-bold text-zinc-900">{filtered.length}</span>{" "}
+              complaints for{" "}
+              <span className="font-bold text-red-700">
+                {session.barangayName}
+              </span>
             </p>
             <span className="inline-flex items-center gap-1 font-mono text-[11px] text-zinc-400">
               <Layers size={13} />
@@ -294,18 +308,33 @@ export default function BarangayComplaints({ initialStatusFilter = "All" }) {
         {/* Main Grid: Table on Left + Details on Right */}
         <div className="grid gap-6 xl:grid-cols-12">
           {/* Table Container */}
-          <div className="rounded-3xl border border-zinc-200/80 bg-white p-5 shadow-xs xl:col-span-7">
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-160 text-left text-xs">
+          <div className="rounded-3xl border border-zinc-200/80 bg-white p-4 shadow-sm sm:p-5 xl:col-span-8">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pb-3 border-b border-zinc-100">
+              <div>
+                <h2 className="text-base font-extrabold text-zinc-900">
+                  Complaints Queue
+                </h2>
+                <p className="text-xs text-zinc-500">
+                  Active reports received for {session.barangayName}
+                </p>
+              </div>
+
+              <span className="rounded-full bg-red-50 px-3 py-1 font-mono text-xs font-extrabold text-red-700">
+                {filtered.length} Active Records
+              </span>
+            </div>
+
+            <div className="mt-4 overflow-x-auto">
+              <table className="w-full min-w-176 text-left text-xs">
                 <thead>
-                  <tr className="border-b border-zinc-200 text-[10px] font-bold uppercase tracking-wider text-zinc-400">
-                    <th className="pb-3 pl-2">Complaint ID</th>
-                    <th className="pb-3">Resident</th>
-                    <th className="pb-3">Complaint</th>
-                    <th className="pb-3">Category</th>
-                    <th className="pb-3">AI Severity</th>
-                    <th className="pb-3">Status</th>
-                    <th className="pb-3 text-right pr-2">Action</th>
+                  <tr className="border-b border-zinc-200 text-[10px] uppercase tracking-wider text-zinc-400">
+                    <th className="px-3 py-3 font-semibold">Complaint ID</th>
+                    <th className="px-3 py-3 font-semibold">Issue Title</th>
+                    <th className="px-3 py-3 font-semibold">Resident & Location</th>
+                    <th className="px-3 py-3 font-semibold">Category</th>
+                    <th className="px-3 py-3 font-semibold">Priority</th>
+                    <th className="px-3 py-3 font-semibold">Status</th>
+                    <th className="px-3 py-3 text-right pr-3 font-semibold">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-100">
@@ -315,33 +344,54 @@ export default function BarangayComplaints({ initialStatusFilter = "All" }) {
                       <tr
                         key={item.id}
                         onClick={() => setSelectedComplaint(item)}
-                        className={`cursor-pointer transition hover:bg-red-50/40 ${
-                          isSelected ? "bg-red-50/70 font-semibold" : ""
+                        className={`cursor-pointer transition ${
+                          isSelected ? "bg-red-50/70 font-semibold" : "hover:bg-zinc-50/70"
                         }`}
                       >
-                        <td className="py-3.5 pl-2 font-mono text-[11px] font-bold text-zinc-800">
+                        <td className="px-3 py-3.5 font-mono text-[11px] font-bold text-zinc-800 whitespace-nowrap">
                           {item.id}
                         </td>
-                        <td className="py-3.5">
-                          <p className="font-bold text-zinc-900">{item.residentName}</p>
-                          <p className="text-[10px] text-zinc-400">{item.submittedAt.split("·")[0]}</p>
+                        <td className="px-3 py-3.5">
+                          <div className="flex items-center gap-2.5">
+                            {item.image && (
+                              <img
+                                src={item.image}
+                                alt={item.title}
+                                className="h-9 w-9 shrink-0 rounded-lg object-cover border border-zinc-200"
+                              />
+                            )}
+                            <div className="min-w-0 max-w-56">
+                              <p className="truncate text-xs font-bold text-zinc-900">
+                                {item.title}
+                              </p>
+                              <p className="font-mono text-[10px] text-zinc-400">
+                                {item.submittedAt}
+                              </p>
+                            </div>
+                          </div>
                         </td>
-                        <td className="py-3.5 max-w-44 truncate">
-                          <p className="truncate text-zinc-800 font-medium">{item.title}</p>
-                          <p className="truncate text-[10px] text-zinc-400">{item.location}</p>
+                        <td className="px-3 py-3.5">
+                          <p className="font-bold text-zinc-900 truncate max-w-44">
+                            {item.residentName}
+                          </p>
+                          <p className="text-[10px] text-zinc-500 truncate max-w-44">
+                            {item.location}
+                          </p>
                         </td>
-                        <td className="py-3.5">
+                        <td className="px-3 py-3.5 whitespace-nowrap">
                           <span className="rounded-md bg-zinc-100 px-2 py-0.5 text-[10px] font-bold text-zinc-700">
                             {item.category}
                           </span>
                         </td>
-                        <td className="py-3.5">
-                          <SeverityBadge severity={item.severity || item.aiAnalysis?.severity} />
+                        <td className="px-3 py-3.5 whitespace-nowrap">
+                          <SeverityBadge
+                            severity={item.severity || item.aiAnalysis?.severity}
+                          />
                         </td>
-                        <td className="py-3.5">
+                        <td className="px-3 py-3.5 whitespace-nowrap">
                           <StatusBadge status={item.status} />
                         </td>
-                        <td className="py-3.5 text-right pr-2">
+                        <td className="px-3 py-3.5 text-right pr-3 whitespace-nowrap">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -362,9 +412,17 @@ export default function BarangayComplaints({ initialStatusFilter = "All" }) {
 
                   {filtered.length === 0 && (
                     <tr>
-                      <td colSpan={7} className="py-16 text-center text-zinc-400">
-                        <FileText size={32} className="mx-auto text-zinc-300 mb-2" />
-                        <p className="font-bold text-sm text-zinc-600">No complaints found</p>
+                      <td
+                        colSpan={7}
+                        className="py-16 text-center text-zinc-400"
+                      >
+                        <FileText
+                          size={32}
+                          className="mx-auto text-zinc-300 mb-2"
+                        />
+                        <p className="font-bold text-sm text-zinc-600">
+                          No complaints found
+                        </p>
                         <p className="text-xs text-zinc-400 mt-1">
                           Try changing your search term or status filter.
                         </p>
@@ -377,7 +435,7 @@ export default function BarangayComplaints({ initialStatusFilter = "All" }) {
           </div>
 
           {/* Details & Action Panel */}
-          <div className="rounded-3xl border border-zinc-200/80 bg-white p-5 shadow-xs xl:col-span-5">
+          <div className="rounded-3xl border border-zinc-200/80 bg-white p-5 shadow-xs xl:col-span-4">
             {activeComplaint ? (
               <div className="space-y-5">
                 {/* Header info */}
@@ -473,19 +531,25 @@ export default function BarangayComplaints({ initialStatusFilter = "All" }) {
                       <span className="text-[10px] text-zinc-400 uppercase font-semibold">
                         Category:
                       </span>
-                      <p className="font-bold text-zinc-800">{activeComplaint.category}</p>
+                      <p className="font-bold text-zinc-800">
+                        {activeComplaint.category}
+                      </p>
                     </div>
                     <div>
                       <span className="text-[10px] text-zinc-400 uppercase font-semibold">
                         Severity:
                       </span>
-                      <p className="font-bold text-zinc-800">{activeComplaint.severity || "Medium"}</p>
+                      <p className="font-bold text-zinc-800">
+                        {activeComplaint.severity || "Medium"}
+                      </p>
                     </div>
                     <div>
                       <span className="text-[10px] text-zinc-400 uppercase font-semibold">
                         Initial Receiver:
                       </span>
-                      <p className="font-bold text-red-700">{activeComplaint.barangay}</p>
+                      <p className="font-bold text-red-700">
+                        {activeComplaint.barangay}
+                      </p>
                     </div>
                     <div>
                       <span className="text-[10px] text-zinc-400 uppercase font-semibold">
@@ -499,7 +563,9 @@ export default function BarangayComplaints({ initialStatusFilter = "All" }) {
                   </div>
 
                   <div className="mt-3 rounded-xl bg-white p-2.5 border border-red-100 text-[11px] text-zinc-700">
-                    <span className="font-bold text-red-700 mr-1">AI Recommendation:</span>
+                    <span className="font-bold text-red-700 mr-1">
+                      AI Recommendation:
+                    </span>
                     {activeComplaint.aiAnalysis?.aiRecommendation ||
                       "Send to Barangay for initial Tier 1 assessment."}
                   </div>
@@ -514,7 +580,8 @@ export default function BarangayComplaints({ initialStatusFilter = "All" }) {
                     </div>
                     <div className="space-y-1.5 text-zinc-700">
                       <p>
-                        <span className="font-bold">Reason:</span> {activeComplaint.escalation.reason}
+                        <span className="font-bold">Reason:</span>{" "}
+                        {activeComplaint.escalation.reason}
                       </p>
                       <p>
                         <span className="font-bold">Recommended Office:</span>{" "}
@@ -527,8 +594,8 @@ export default function BarangayComplaints({ initialStatusFilter = "All" }) {
                         {activeComplaint.escalation.barangayAssessment}
                       </p>
                       <p className="text-[11px] text-zinc-500 font-mono mt-1">
-                        Escalated on: {activeComplaint.escalation.escalatedAt} by{" "}
-                        {activeComplaint.escalation.escalatedBy}
+                        Escalated on: {activeComplaint.escalation.escalatedAt}{" "}
+                        by {activeComplaint.escalation.escalatedBy}
                       </p>
                     </div>
                   </div>
@@ -539,7 +606,11 @@ export default function BarangayComplaints({ initialStatusFilter = "All" }) {
                   <div className="rounded-2xl border border-emerald-300 bg-emerald-50 p-4 text-xs">
                     <div className="flex items-center gap-2 text-emerald-800 font-extrabold text-xs mb-2">
                       <CheckCircle2 size={16} />
-                      <span>RESOLVED BY {activeComplaint.resolution.resolvedLevel?.toUpperCase() || "BARANGAY"}</span>
+                      <span>
+                        RESOLVED BY{" "}
+                        {activeComplaint.resolution.resolvedLevel?.toUpperCase() ||
+                          "BARANGAY"}
+                      </span>
                     </div>
                     <p className="text-zinc-700 leading-relaxed">
                       {activeComplaint.resolution.description}
@@ -559,19 +630,24 @@ export default function BarangayComplaints({ initialStatusFilter = "All" }) {
                       <span>ADDITIONAL INFORMATION REQUEST</span>
                     </div>
                     <p className="text-zinc-700 mt-1">
-                      <span className="font-bold">Reason:</span> {activeComplaint.infoRequest.reason}
+                      <span className="font-bold">Reason:</span>{" "}
+                      {activeComplaint.infoRequest.reason}
                     </p>
                     <p className="text-zinc-700 mt-1">
-                      <span className="font-bold">Message sent:</span> &ldquo;{activeComplaint.infoRequest.messageToResident}&rdquo;
+                      <span className="font-bold">Message sent:</span> &ldquo;
+                      {activeComplaint.infoRequest.messageToResident}&rdquo;
                     </p>
                     {activeComplaint.infoRequest.residentResponse ? (
                       <div className="mt-2.5 rounded-xl bg-white p-2.5 border border-amber-200 text-xs">
-                        <span className="font-bold text-emerald-700">Resident Response:</span>
+                        <span className="font-bold text-emerald-700">
+                          Resident Response:
+                        </span>
                         <p className="mt-0.5 text-zinc-800">
                           {activeComplaint.infoRequest.residentResponse}
                         </p>
                         <p className="mt-1 text-[10px] text-zinc-400 font-mono">
-                          Received: {activeComplaint.infoRequest.responseSubmittedAt}
+                          Received:{" "}
+                          {activeComplaint.infoRequest.responseSubmittedAt}
                         </p>
                       </div>
                     ) : (
@@ -620,7 +696,9 @@ export default function BarangayComplaints({ initialStatusFilter = "All" }) {
                     <button
                       onClick={() => {
                         setAssignedStaff(session.staffName);
-                        setActionPlan(`Barangay response team dispatch for ${activeComplaint.category}`);
+                        setActionPlan(
+                          `Barangay response team dispatch for ${activeComplaint.category}`,
+                        );
                         setTargetDate("Within 48 hours");
                         setActiveModal("inProgress");
                       }}
@@ -653,7 +731,7 @@ export default function BarangayComplaints({ initialStatusFilter = "All" }) {
                       onClick={() => {
                         setEscalateReason(ESCALATION_REASONS[1]);
                         setEscalateAssessment(
-                          `The issue with ${activeComplaint.title.toLowerCase()} requires equipment and technical resources beyond Barangay capacity.`
+                          `The issue with ${activeComplaint.title.toLowerCase()} requires equipment and technical resources beyond Barangay capacity.`,
                         );
                         setActiveModal("escalate");
                       }}
@@ -676,13 +754,18 @@ export default function BarangayComplaints({ initialStatusFilter = "All" }) {
                   </p>
                   <div className="space-y-3">
                     {activeComplaint.timeline?.map((step, idx) => (
-                      <div key={idx} className="flex items-start gap-2.5 text-xs">
+                      <div
+                        key={idx}
+                        className="flex items-start gap-2.5 text-xs"
+                      >
                         <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-red-100 text-[10px] font-bold text-red-700 mt-0.5">
                           {idx + 1}
                         </span>
                         <div>
                           <p className="font-bold text-zinc-900">{step.step}</p>
-                          <p className="text-[11px] text-zinc-500">{step.note}</p>
+                          <p className="text-[11px] text-zinc-500">
+                            {step.note}
+                          </p>
                           <span className="font-mono text-[10px] text-zinc-400">
                             {step.time} · {step.actor}
                           </span>
@@ -695,7 +778,9 @@ export default function BarangayComplaints({ initialStatusFilter = "All" }) {
             ) : (
               <div className="py-20 text-center text-zinc-400">
                 <p className="text-sm font-bold">No complaint selected</p>
-                <p className="text-xs mt-1">Select a complaint from the table to view details.</p>
+                <p className="text-xs mt-1">
+                  Select a complaint from the table to view details.
+                </p>
               </div>
             )}
           </div>
@@ -706,10 +791,16 @@ export default function BarangayComplaints({ initialStatusFilter = "All" }) {
       {/* MODAL 1: REQUEST MORE INFORMATION */}
       {/* ------------------------------------------------------------- */}
       {activeModal === "requestInfo" && activeComplaint && (
-        <ModalWrapper title="Request More Information" onClose={() => setActiveModal(null)}>
+        <ModalWrapper
+          title="Request More Information"
+          onClose={() => setActiveModal(null)}
+        >
           <form onSubmit={handleRequestInfoSubmit} className="space-y-4">
             <div className="rounded-2xl bg-amber-50 p-3 text-xs text-amber-800">
-              Notify <span className="font-bold">{activeComplaint.residentName}</span> that additional details are needed before the Barangay can proceed.
+              Notify{" "}
+              <span className="font-bold">{activeComplaint.residentName}</span>{" "}
+              that additional details are needed before the Barangay can
+              proceed.
             </div>
 
             <div>
@@ -721,9 +812,15 @@ export default function BarangayComplaints({ initialStatusFilter = "All" }) {
                 onChange={(e) => setInfoReason(e.target.value)}
                 className="w-full rounded-xl border border-zinc-300 p-2.5 text-xs font-semibold focus:border-red-600 outline-none"
               >
-                <option value="Incomplete details or unclear photo">Incomplete details or unclear photo</option>
-                <option value="Exact landmark or street number needed">Exact landmark or street number needed</option>
-                <option value="Need clarification on private property boundary">Need clarification on private property boundary</option>
+                <option value="Incomplete details or unclear photo">
+                  Incomplete details or unclear photo
+                </option>
+                <option value="Exact landmark or street number needed">
+                  Exact landmark or street number needed
+                </option>
+                <option value="Need clarification on private property boundary">
+                  Need clarification on private property boundary
+                </option>
                 <option value="Other">Other</option>
               </select>
             </div>
@@ -766,7 +863,10 @@ export default function BarangayComplaints({ initialStatusFilter = "All" }) {
       {/* MODAL 2: MARK AS IN PROGRESS */}
       {/* ------------------------------------------------------------- */}
       {activeModal === "inProgress" && activeComplaint && (
-        <ModalWrapper title="Mark Complaint as In Progress" onClose={() => setActiveModal(null)}>
+        <ModalWrapper
+          title="Mark Complaint as In Progress"
+          onClose={() => setActiveModal(null)}
+        >
           <form onSubmit={handleInProgressSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-bold uppercase tracking-wide text-zinc-600 mb-1">
@@ -845,10 +945,14 @@ export default function BarangayComplaints({ initialStatusFilter = "All" }) {
       {/* MODAL 3: RESOLVE COMPLAINT */}
       {/* ------------------------------------------------------------- */}
       {activeModal === "resolve" && activeComplaint && (
-        <ModalWrapper title="Resolve Complaint" onClose={() => setActiveModal(null)}>
+        <ModalWrapper
+          title="Resolve Complaint"
+          onClose={() => setActiveModal(null)}
+        >
           <form onSubmit={handleResolveSubmit} className="space-y-4">
             <div className="rounded-2xl bg-emerald-50 p-3 text-xs text-emerald-800">
-              Confirm that the Barangay has completely addressed this issue. The resident will be notified.
+              Confirm that the Barangay has completely addressed this issue. The
+              resident will be notified.
             </div>
 
             <div>
@@ -867,7 +971,9 @@ export default function BarangayComplaints({ initialStatusFilter = "All" }) {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-xl border border-dashed border-zinc-300 p-3 text-center">
-                <p className="text-[10px] font-bold uppercase text-zinc-400 mb-1">Before Photo</p>
+                <p className="text-[10px] font-bold uppercase text-zinc-400 mb-1">
+                  Before Photo
+                </p>
                 <img
                   src={activeComplaint.image}
                   alt="Before"
@@ -875,9 +981,13 @@ export default function BarangayComplaints({ initialStatusFilter = "All" }) {
                 />
               </div>
               <div className="rounded-xl border border-dashed border-emerald-300 bg-emerald-50/50 p-3 text-center flex flex-col items-center justify-center">
-                <p className="text-[10px] font-bold uppercase text-emerald-700 mb-1">After Photo Attached</p>
+                <p className="text-[10px] font-bold uppercase text-emerald-700 mb-1">
+                  After Photo Attached
+                </p>
                 <ShieldCheck size={28} className="text-emerald-600" />
-                <span className="text-[10px] text-zinc-500 mt-1">Verified on site</span>
+                <span className="text-[10px] text-zinc-500 mt-1">
+                  Verified on site
+                </span>
               </div>
             </div>
 
@@ -904,7 +1014,10 @@ export default function BarangayComplaints({ initialStatusFilter = "All" }) {
       {/* MODAL 4: ESCALATE TO LGU */}
       {/* ------------------------------------------------------------- */}
       {activeModal === "escalate" && activeComplaint && (
-        <ModalWrapper title="Escalate Complaint to LGU" onClose={() => setActiveModal(null)}>
+        <ModalWrapper
+          title="Escalate Complaint to LGU"
+          onClose={() => setActiveModal(null)}
+        >
           <form onSubmit={handleEscalateSubmit} className="space-y-4">
             <div className="rounded-2xl border border-red-200 bg-red-50 p-3 text-xs text-red-900">
               <p className="font-bold flex items-center gap-1.5 text-red-700">
@@ -912,7 +1025,9 @@ export default function BarangayComplaints({ initialStatusFilter = "All" }) {
                 Barangay Escalation Protocol
               </p>
               <p className="mt-1 text-[11px] leading-relaxed text-zinc-700">
-                Use this when the complaint cannot be resolved with Barangay resources. ACORS will automatically route this complaint to the appropriate LGU department.
+                Use this when the complaint cannot be resolved with Barangay
+                resources. ACORS will automatically route this complaint to the
+                appropriate LGU department.
               </p>
             </div>
 
