@@ -71,12 +71,18 @@ import OSCARequests from "./Offices/OSCA/Requests";
 import AssessorOverview from "./Offices/Assessor/Overview";
 import AssessorRequests from "./Offices/Assessor/Requests";
 import OfficeProfile from "./Offices/OfficeProfile";
+import LandingPage from "./landingpage";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
+        {/* ACORS Staff Portal Landing — "Choose your portal" (Barangay / LGU / Admin) */}
+        <Route path="/staff" element={<LandingPage />} />
+        <Route path="/staff-portal" element={<LandingPage />} />
+        <Route path="/portal" element={<LandingPage />} />
+        <Route path="/welcome-page" element={<LandingPage />} />
         
         {/* Tier 1: Citizen Mobile / Web Routes */}
         <Route path="/home" element={<Home />} />
@@ -109,6 +115,7 @@ function App() {
         {/* Tier 2: LGU Admin / Central Web Dashboard */}
         <Route path="/office/login" element={<Navigate to="/department/login" replace />} />
         <Route path="/department/login" element={<OfficeLogin />} />
+        <Route path="/lgu/login" element={<Navigate to="/department/login" replace />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/overview" element={<Overview />} />
         <Route path="/admin/profile" element={<AdminProfile />} />
